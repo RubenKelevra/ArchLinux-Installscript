@@ -7,10 +7,10 @@ admins=("ruben" "sascha")
 sshkeys["ruben"]=""
 sshkeys["sascha"]=""
 
-archfr_repo="
+archfr_repo='
 [archlinuxfr]
 SigLevel = Optional TrustAll
-Server = http://repo.archlinux.fr/$arch"
+Server = http://repo.archlinux.fr/$arch'
 locale_conf='LANG=de_DE.UTF-8
 LC_CTYPE="de_DE.UTF-8"
 LC_NUMERIC="de_DE.UTF-8"
