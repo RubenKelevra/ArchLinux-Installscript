@@ -75,10 +75,9 @@ echo "generating fstab entrys..."
 genfstab -Up /mnt >> /mnt/etc/fstab
 
 echo "doing chroot, to configure new system..."
-arch-chroot /mnt /bin/sh <<EOC
-echo $HOSTNAME > /etc/hostname
+echo "echo $HOSTNAME > /etc/hostname
 ln -s /usr/share/zoneinfo/Europe/Berlin /etc/localtime
-echo "$archfr_repo" >> /etc/pacman.conf
+echo \"$archfr_repo\" >> /etc/pacman.conf
 pacman -Syy
 pacman -S yaourt --noconfirm
 sed -i -e 's/ -mtune=generic / -mtune=native /' /etc/makepkg.conf
@@ -87,12 +86,12 @@ sed -i -e 's/#\(de_DE\).UTF-8 UTF-8/\1.UTF-8 UTF-8/' /etc/locale.gen
 sed -i -e 's/#\(de_DE\) ISO-8859-1/\1 ISO-8859-1/' /etc/locale.gen
 sed -i -e 's/#\(de_DE\)@euro ISO-8859-15/\1@euro ISO-8859-15/' /etc/locale.gen
 locale-gen
-echo "$locale_conf" > /etc/locale.conf
-echo 'KEYMAP="de-latin1"' > /etc/vconsole.conf
+echo \"$locale_conf\" > /etc/locale.conf
+echo 'KEYMAP=\"de-latin1\"' > /etc/vconsole.conf
 passwd -l root
 
 LISTOFADMINS=""
-for admin in "${admins[@]}"; do
+for admin in \"${admins[@]}\"; do
 
 	useradd -m -g users -G wheel -s /bin/bash $admin
 	
@@ -101,11 +100,11 @@ for admin in "${admins[@]}"; do
 	chown $admin: -R ~$admin/.ssh/
 	chmod 700 ~$admin/.ssh/
 	chmod 600 ~$admin/.ssh/authorized_keys
-	echo "${sshkeys["$admin"]}" > ~$admin/.ssh/authorized_keys
-	LISTOFADMINS+=" $admin"
+	echo \"${sshkeys["$admin"]}\" > ~$admin/.ssh/authorized_keys
+	LISTOFADMINS+=\" $admin\"
 done
 
-echo -e "\nAllowUsers$LISTOFADMINS" >> /etc/ssh/sshd_config;unset LISTOFADMINS
+echo -e \"\nAllowUsers$LISTOFADMINS\" >> /etc/ssh/sshd_config;unset LISTOFADMINS
 sed -i -e 's/#UseDNS yes/UseDNS no/' /etc/ssh/sshd_config
 sed -i -e 's/#Port 22/Port 1337/' /etc/ssh/sshd_config
 sed -i -e 's/#ClientAliveInterval 0/ClientAliveInterval 60/' /etc/ssh/sshd_config
@@ -118,13 +117,15 @@ sed -i -e 's/#PermitEmptyPasswords no/PermitEmptyPasswords no' /etc/ssh/sshd_con
 
 sed -i -e 's/# %wheel ALL=(ALL) NOPASSWD: ALL/%wheel ALL=(ALL) NOPASSWD: ALL/' /etc/sudoers
 
-sed -i -e 's/HOOKS="base udev autodetect modconf block filesystems keyboard fsck"/HOOKS="base udev autodetect modconf block filesystems keyboard fsck btrfs_advanced"/' /etc/mkinitcpio.conf
+sed -i -e 's/HOOKS=\"base udev autodetect modconf block filesystems keyboard fsck\"/HOOKS=\"base udev autodetect modconf block filesystems keyboard fsck btrfs_advanced\"/' /etc/mkinitcpio.conf
 
 mkinitcpio -p linux
 grub-install $maindevice
 sed -i -e 's/GRUB_TIMEOUT=5/GRUB_TIMEOUT=2/' /etc/default/grub
 grub-mkconfig -o /boot/grub/grub.cfg
 systemctl enable dhcpcd
-echo noarp >> /etc/dhcpcd.conf
+echo noarp >> /etc/dhcpcd.conf" > /mnt/install.sh
+arch-chroot /mnt /bin/sh <<EOC
+bash -x /install.sh
 EOC
 umount /mnt
