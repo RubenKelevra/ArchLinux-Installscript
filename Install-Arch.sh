@@ -62,7 +62,7 @@ unset REPLY
 
 echo "creating partion..."
 parted -s -- $maindevice mklabel msdos
-parted -a optimal -s -- $maindevice primary btrfs 1M 100%FREE
+parted -a optimal -s -- $maindevice mkpart primary ext4 1% 99%FREE #btrfs not supported here
 
 mainpartition=$(echo "$maindevice")1
 
