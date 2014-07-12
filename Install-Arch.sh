@@ -67,7 +67,7 @@ parted -a optimal -s -- $maindevice primary btrfs 1M 100%FREE
 mainpartition=$(echo "$maindevice")1
 
 echo "creating and mounting new filesystem..."
-mkfs.btrfs -L root $mainpartition
+mkfs.btrfs -f -L root $mainpartition
 mount $mainpartition /mnt -O rw,noatime,recovery,compress=zlib,autodefrag,discard,space_cache,inode_cache,nossd
 echo "install basic system..."
 pacstrap /mnt base base-devel grub
