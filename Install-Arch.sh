@@ -4,8 +4,8 @@ declare -A sshkeys
 #vars
 admins=("ruben" "sascha")
 
-sshkeys["ruben"]=""
-sshkeys["sascha"]=""
+sshkeys["ruben"]="123"
+sshkeys["sascha"]="456"
 
 archfr_repo='
 [archlinuxfr]
