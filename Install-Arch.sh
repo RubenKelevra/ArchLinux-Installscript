@@ -87,7 +87,7 @@ sed -i -e 's/#\(de_DE\).UTF-8 UTF-8/\1.UTF-8 UTF-8/' /etc/locale.gen
 sed -i -e 's/#\(de_DE\) ISO-8859-1/\1 ISO-8859-1/' /etc/locale.gen
 sed -i -e 's/#\(de_DE\)@euro ISO-8859-15/\1@euro ISO-8859-15/' /etc/locale.gen
 locale-gen
-cat $locale_conf > /etc/locale.conf
+echo "$locale_conf" > /etc/locale.conf
 echo 'KEYMAP="de-latin1"' > /etc/vconsole.conf
 passwd -l root
 
