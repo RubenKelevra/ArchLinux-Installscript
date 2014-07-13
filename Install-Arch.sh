@@ -100,7 +100,7 @@ for admin in \"${admins[@]}\"; do
 	chown $admin: -R ~$admin/.ssh/
 	chmod 700 ~$admin/.ssh/
 	chmod 600 ~$admin/.ssh/authorized_keys
-	echo \"${sshkeys["$admin"]}\" > ~$admin/.ssh/authorized_keys
+	echo \"${sshkeys[\"$admin\"]}\" > ~$admin/.ssh/authorized_keys
 	LISTOFADMINS+=\" $admin\"
 done
 
