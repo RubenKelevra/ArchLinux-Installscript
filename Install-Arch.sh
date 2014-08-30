@@ -97,7 +97,8 @@ pacman -S yaourt --noconfirm
 sed -i -e 's/ -mtune=generic / -mtune=native /g' /etc/makepkg.conf
 sed -i -e 's/^#MAKEFLAGS="-j2"/MAKEFLAGS="-j6"/' /etc/makepkg.conf
 pkgfile --update
-yaourt -S mkinitcpio-btrfs rk-server-basic --noconfirm
+yaourt -S mkinitcpio-btrfs rk-server-basic linux-lts linux-lts-headers --noconfirm
+yaourt -Rs linux linux-headers --noconfirm
 echo 'KEYMAP="de"' > /etc/vconsole.conf
 LISTOFADMINS=""
 for admin in \"${admins[@]}\"; do
