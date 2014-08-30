@@ -77,21 +77,28 @@ echo "generating fstab entrys..."
 genfstab -Up /mnt >> /mnt/etc/fstab
 
 echo "doing chroot, to configure new system..."
-echo "echo $HOSTNAME > /etc/hostname
+
+arch-chroot /mnt /bin/sh <<EOC
+echo $HOSTNAME > /etc/hostname
 ln -s /usr/share/zoneinfo/Europe/Berlin /etc/localtime
-echo \"$archfr_repo\" >> /etc/pacman.conf
-pacman -Syy
-pacman -S yaourt --noconfirm
-sed -i -e 's/ -mtune=generic / -mtune=native /g' /etc/makepkg.conf
-yaourt -S mkinitcpio-btrfs rk-server-basic --noconfirm
 sed -i -e 's/#\(de_DE\).UTF-8 UTF-8/\1.UTF-8 UTF-8/' /etc/locale.gen
 sed -i -e 's/#\(de_DE\) ISO-8859-1/\1 ISO-8859-1/' /etc/locale.gen
 sed -i -e 's/#\(de_DE\)@euro ISO-8859-15/\1@euro ISO-8859-15/' /etc/locale.gen
 locale-gen
-echo \"$locale_conf\" > /etc/locale.conf
+cat <<EOLC > /etc/locale.conf
+$locale_conf
+EOLC
 echo 'KEYMAP=\"de-latin1\"' > /etc/vconsole.conf
-passwd -l root
-
+cat <<EOLC >> /etc/pacman.conf
+$archfr_repo
+EOLC
+pacman -Syy
+pacman -S yaourt --noconfirm
+sed -i -e 's/ -mtune=generic / -mtune=native /g' /etc/makepkg.conf
+sed -i -e 's/^#MAKEFLAGS="-j2"/MAKEFLAGS="-j6"/' /etc/makepkg.conf
+pkgfile --update
+yaourt -S mkinitcpio-btrfs rk-server-basic --noconfirm
+echo 'KEYMAP="de"' > /etc/vconsole.conf
 LISTOFADMINS=""
 for admin in \"${admins[@]}\"; do
 
@@ -118,16 +125,16 @@ sed -i -e 's/#PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/ss
 sed -i -e 's/#PermitEmptyPasswords no/PermitEmptyPasswords no' /etc/ssh/sshd_config
 
 sed -i -e 's/# %wheel ALL=(ALL) NOPASSWD: ALL/%wheel ALL=(ALL) NOPASSWD: ALL/' /etc/sudoers
+passwd -l root
 
-sed -i -e 's/HOOKS=\"base udev autodetect modconf block filesystems keyboard fsck\"/HOOKS=\"base udev autodetect modconf block filesystems keyboard fsck btrfs_advanced\"/' /etc/mkinitcpio.conf
+systemctl enable dhcpcd
+echo noarp >> /etc/dhcpcd.conf
 
 mkinitcpio -p linux
 grub-install $maindevice
+
 sed -i -e 's/GRUB_TIMEOUT=5/GRUB_TIMEOUT=2/' /etc/default/grub
+
 grub-mkconfig -o /boot/grub/grub.cfg
-systemctl enable dhcpcd
-echo noarp >> /etc/dhcpcd.conf" > /mnt/install.sh
-arch-chroot /mnt /bin/sh <<EOC
-bash -x /install.sh
 EOC
 umount /mnt
