@@ -98,10 +98,11 @@ sed -i -e 's/ -mtune=generic / -mtune=native /g' /etc/makepkg.conf
 sed -i -e 's/^#MAKEFLAGS="-j2"/MAKEFLAGS="-j6"/' /etc/makepkg.conf
 yaourt -S mkinitcpio-btrfs rk-server-basic linux-lts linux-lts-headers --noconfirm
 pkgfile --update
-yaourt -Rs linux linux-headers --noconfirm
+yaourt -Rs linux --noconfirm
+yaourt -Rs linux-headers --noconfirm || true
 echo 'KEYMAP="de"' > /etc/vconsole.conf
 LISTOFADMINS=""
-for admin in \"${admins[@]}\"; do
+for admin in "${admins[@]}"; do
 
 	useradd -m -g users -G wheel -s /bin/bash $admin
 	
@@ -110,11 +111,11 @@ for admin in \"${admins[@]}\"; do
 	chown $admin: -R ~$admin/.ssh/
 	chmod 700 ~$admin/.ssh/
 	chmod 600 ~$admin/.ssh/authorized_keys
-	echo \"${sshkeys[\"$admin\"]}\" > ~$admin/.ssh/authorized_keys
-	LISTOFADMINS+=\" $admin\"
+	echo "${sshkeys["$admin"]}" > ~$admin/.ssh/authorized_keys
+	LISTOFADMINS+=" $admin"
 done
 
-echo -e \"\nAllowUsers$LISTOFADMINS\" >> /etc/ssh/sshd_config;unset LISTOFADMINS
+echo -e "\nAllowUsers$LISTOFADMINS" >> /etc/ssh/sshd_config;unset LISTOFADMINS
 sed -i -e 's/#UseDNS yes/UseDNS no/' /etc/ssh/sshd_config
 sed -i -e 's/#Port 22/Port 1337/' /etc/ssh/sshd_config
 sed -i -e 's/#ClientAliveInterval 0/ClientAliveInterval 2/' /etc/ssh/sshd_config
@@ -123,7 +124,7 @@ sed -i -e 's/#Banner none/Banner \/etc\/issue/' /etc/ssh/sshd_config
 sed -i -e 's/#MaxStartups 10:30:100/MaxStartups 10:30:100/' /etc/ssh/sshd_config
 sed -i -e 's/#PermitRootLogin yes/PermitRootLogin no/' /etc/ssh/sshd_config
 sed -i -e 's/#PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
-sed -i -e 's/#PermitEmptyPasswords no/PermitEmptyPasswords no' /etc/ssh/sshd_config
+sed -i -e 's/#PermitEmptyPasswords no/PermitEmptyPasswords no/' /etc/ssh/sshd_config
 
 sed -i -e 's/# %wheel ALL=(ALL) NOPASSWD: ALL/%wheel ALL=(ALL) NOPASSWD: ALL/' /etc/sudoers
 passwd -l root
