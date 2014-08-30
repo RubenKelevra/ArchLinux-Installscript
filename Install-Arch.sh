@@ -79,7 +79,7 @@ genfstab -Up /mnt >> /mnt/etc/fstab
 echo "doing chroot, to configure new system..."
 
 arch-chroot /mnt /bin/sh <<EOC
-echo $HOSTNAME > /etc/hostname
+echo $hostname > /etc/hostname
 ln -s /usr/share/zoneinfo/Europe/Berlin /etc/localtime
 sed -i -e 's/#\(de_DE\).UTF-8 UTF-8/\1.UTF-8 UTF-8/' /etc/locale.gen
 sed -i -e 's/#\(de_DE\) ISO-8859-1/\1 ISO-8859-1/' /etc/locale.gen
@@ -96,8 +96,8 @@ pacman -Syy
 pacman -S yaourt --noconfirm
 sed -i -e 's/ -mtune=generic / -mtune=native /g' /etc/makepkg.conf
 sed -i -e 's/^#MAKEFLAGS="-j2"/MAKEFLAGS="-j6"/' /etc/makepkg.conf
-pkgfile --update
 yaourt -S mkinitcpio-btrfs rk-server-basic linux-lts linux-lts-headers --noconfirm
+pkgfile --update
 yaourt -Rs linux linux-headers --noconfirm
 echo 'KEYMAP="de"' > /etc/vconsole.conf
 LISTOFADMINS=""
