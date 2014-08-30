@@ -82,7 +82,7 @@ ln -s /usr/share/zoneinfo/Europe/Berlin /etc/localtime
 echo \"$archfr_repo\" >> /etc/pacman.conf
 pacman -Syy
 pacman -S yaourt --noconfirm
-sed -i -e 's/ -mtune=generic / -mtune=native /' /etc/makepkg.conf
+sed -i -e 's/ -mtune=generic / -mtune=native /g' /etc/makepkg.conf
 yaourt -S mkinitcpio-btrfs rk-server-basic --noconfirm
 sed -i -e 's/#\(de_DE\).UTF-8 UTF-8/\1.UTF-8 UTF-8/' /etc/locale.gen
 sed -i -e 's/#\(de_DE\) ISO-8859-1/\1 ISO-8859-1/' /etc/locale.gen
@@ -109,8 +109,8 @@ done
 echo -e \"\nAllowUsers$LISTOFADMINS\" >> /etc/ssh/sshd_config;unset LISTOFADMINS
 sed -i -e 's/#UseDNS yes/UseDNS no/' /etc/ssh/sshd_config
 sed -i -e 's/#Port 22/Port 1337/' /etc/ssh/sshd_config
-sed -i -e 's/#ClientAliveInterval 0/ClientAliveInterval 60/' /etc/ssh/sshd_config
-sed -i -e 's/#ClientAliveCountMax 3/ClientAliveCountMax 500/' /etc/ssh/sshd_config
+sed -i -e 's/#ClientAliveInterval 0/ClientAliveInterval 2/' /etc/ssh/sshd_config
+sed -i -e 's/#ClientAliveCountMax 3/ClientAliveCountMax 5/' /etc/ssh/sshd_config
 sed -i -e 's/#Banner none/Banner \/etc\/issue/' /etc/ssh/sshd_config
 sed -i -e 's/#MaxStartups 10:30:100/MaxStartups 10:30:100/' /etc/ssh/sshd_config
 sed -i -e 's/#PermitRootLogin yes/PermitRootLogin no/' /etc/ssh/sshd_config
