@@ -89,7 +89,7 @@ locale-gen
 cat <<EOLC > /etc/locale.conf
 $locale_conf
 EOLC
-echo 'KEYMAP=\"de-latin1\"' > /etc/vconsole.conf
+echo 'KEYMAP="de-latin1"' > /etc/vconsole.conf
 cat <<EOLC >> /etc/pacman.conf
 $archfr_repo
 EOLC
