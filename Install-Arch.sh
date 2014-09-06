@@ -1,3 +1,6 @@
+[ -z "$1" ] && (echo "supply a hostname!") && exit 1
+hostname="$1"
+
 #init
 declare -A sshkeys
 
@@ -55,21 +58,17 @@ unset no_dev
 
 #run
 
-REPLY=""
-while [ -z "$REPLY" ]; do
-	echo ""
-	read -p "Enter a hostname: " -r
-done
-hostname="$REPLY"
-unset REPLY
-
 echo "creating partion..."
 parted -s -- $maindevice mklabel msdos
-parted -a optimal -s -- $maindevice mkpart primary ext4 1% 99%FREE #btrfs not supported here
+parted -a optimal -s -- $maindevice mkpart primary linux-swap 4096S 2GB
+parted -a optimal -s -- $maindevice mkpart primary ext4 2GB 99%FREE #btrfs not supported here
 
-mainpartition=$(echo "$maindevice")1
+mainpartition=$(echo "$maindevice")2
+swappartition=$(echo "$maindevice")1
 
 echo "creating and mounting new filesystem..."
+mkswap $swappartition
+swapon $swappartition
 mkfs.btrfs -f -L root $mainpartition
 mount $mainpartition /mnt -O rw,noatime,recovery,compress=zlib,autodefrag,discard,space_cache,inode_cache,nossd
 echo "install basic system..."
@@ -77,67 +76,101 @@ pacstrap /mnt base base-devel grub
 echo "generating fstab entrys..."
 genfstab -Up /mnt >> /mnt/etc/fstab
 
+sed -i -e 's/rw,relatime,space_cache/rw,noatime,recovery,compress=zlib,autodefrag,discard,space_cache,inode_cache,nossd/' /mnt/etc/fstab
+sed -i -e 's/defaults/defaults,discard/' /mnt/etc/fstab
+
+echo 'KERNELVER=`uname -r` 
+LOAD=`uptime | awk -F'\''load average:'\'' '\''{ print $2 }'\''`
+
+# get uptime from /proc/uptime
+
+uptime=$(</proc/uptime)
+uptime=${uptime%%.*}
+
+seconds=$(( uptime%60 ))
+minutes=$(( uptime/60%60 ))
+hours=$(( uptime/60/60%24 ))
+days=$(( uptime/60/60/24 ))
+
+UPTIME="$days days $hours:$minutes"
+
+short_hostname=$(echo $HOSTNAME | cut -d"." -f1)
+
+echo "
+       /\\                        _     _ _
+      /  \\         __ _ _ __ ___| |__ | (_)_ __  _   ___  __
+     /'\''   \\       / _\\\`| '\''__/ __| '\''_ \\| | | '\''_ \\| | | \\ \\/ /
+    /_- ~ -\\     | (_| | | | (__| | | | | | | | | |_| |>  <
+   /        \\     \\__,_|_|  \\___|_| |_|_|_|_| |_|\\__,_/_/\_\\
+  /  _- - _ '\''\\
+ /_-'\''      '\''-_\\   connected to $short_hostname running Linux $KERNELVER
+
+Machine Load: $LOAD
+Machine Uptime: $UPTIME
+                                                                         " > /etc/issue' > /mnt/usr/local/bin/issue-update.sh
+
+echo "
+
+echo "writing install-script ..."
+
+echo "admins=$admins" > /mnt/install.sh
+echo "declare -A sshkeys" >> /mnt/install.sh
+echo "sshkeys=$sshkeys" >> /mnt/install.sh
+echo "echo '$hostname' > /etc/hostname" >> /mnt/install.sh
+echo "ln -s /usr/share/zoneinfo/Europe/Berlin /etc/localtime" >> /mnt/install.sh
+echo "sed -i -e 's/#\(de_DE\).UTF-8 UTF-8/\1.UTF-8 UTF-8/' /etc/locale.gen" >> /mnt/install.sh
+echo "sed -i -e 's/#\(de_DE\) ISO-8859-1/\1 ISO-8859-1/' /etc/locale.gen" >> /mnt/install.sh
+echo "sed -i -e 's/#\(de_DE\)@euro ISO-8859-15/\1@euro ISO-8859-15/' /etc/locale.gen" >> /mnt/install.sh
+echo "locale-gen" >> /mnt/install.sh
+echo "echo '$locale_conf' > /etc/locale.conf" >> /mnt/install.sh
+echo "echo 'KEYMAP=\"de-latin1\"' > /etc/vconsole.conf" >> /mnt/install.sh
+echo "echo '$archfr_repo' >> /etc/pacman.conf" >> /mnt/install.sh
+echo "pacman -Syy" >> /mnt/install.sh
+echo "pacman -S yaourt --noconfirm" >> /mnt/install.sh
+echo "sed -i -e 's/ -mtune=generic / -mtune=native /g' /etc/makepkg.conf" >> /mnt/install.sh
+echo "sed -i -e 's/^#MAKEFLAGS=\"-j2\"/MAKEFLAGS=\"-j6\"/' /etc/makepkg.conf" >> /mnt/install.sh
+echo "yaourt -S mkinitcpio-btrfs rk-server-basic linux-lts linux-lts-headers --noconfirm" >> /mnt/install.sh
+echo "pkgfile --update" >> /mnt/install.sh
+echo "yaourt -Rs linux --noconfirm" >> /mnt/install.sh
+echo "yaourt -Rs linux-headers --noconfirm || true" >> /mnt/install.sh
+echo "echo 'KEYMAP=\"de\"' > /etc/vconsole.conf" >> /mnt/install.sh
+echo "LISTOFADMINS=''"  >> /mnt/install.sh
+echo 'for admin in "${admins[@]}"; do' >> /mnt/install.sh
+echo ""  >> /mnt/install.sh
+echo '    useradd -m -g users -G wheel -s /bin/bash $admin'  >> /mnt/install.sh
+echo '    mkdir -p ~$admin/.ssh/'  >> /mnt/install.sh
+echo '    touch ~$admin/.ssh/authorized_keys'  >> /mnt/install.sh
+echo '    chown $admin: -R ~$admin/.ssh/'  >> /mnt/install.sh
+echo '    chmod 700 ~$admin/.ssh/'  >> /mnt/install.sh
+echo '    chmod 600 ~$admin/.ssh/authorized_keys'  >> /mnt/install.sh
+echo '    echo "${sshkeys["$admin"]}" > ~$admin/.ssh/authorized_keys'  >> /mnt/install.sh
+echo '    LISTOFADMINS+=" $admin"'  >> /mnt/install.sh
+echo 'done' >> /mnt/install.sh
+echo 'echo -e "\nAllowUsers$LISTOFADMINS" >> /etc/ssh/sshd_config;unset LISTOFADMINS' >> /mnt/install.sh
+echo "sed -i -e 's/#UseDNS yes/UseDNS no/' /etc/ssh/sshd_config" >> /mnt/install.sh
+echo "sed -i -e 's/#Port 22/Port 1337/' /etc/ssh/sshd_config" >> /mnt/install.sh
+echo "sed -i -e 's/#ClientAliveInterval 0/ClientAliveInterval 2/' /etc/ssh/sshd_config" >> /mnt/install.sh
+echo "sed -i -e 's/#ClientAliveCountMax 3/ClientAliveCountMax 5/' /etc/ssh/sshd_config" >> /mnt/install.sh
+echo "sed -i -e 's/#Banner none/Banner \/etc\/issue/' /etc/ssh/sshd_config" >> /mnt/install.sh
+echo "sed -i -e 's/#MaxStartups 10:30:100/MaxStartups 10:30:100/' /etc/ssh/sshd_config" >> /mnt/install.sh
+echo "sed -i -e 's/#PermitRootLogin yes/PermitRootLogin no/' /etc/ssh/sshd_config" >> /mnt/install.sh
+echo "sed -i -e 's/#PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config" >> /mnt/install.sh
+echo "sed -i -e 's/#PermitEmptyPasswords no/PermitEmptyPasswords no/' /etc/ssh/sshd_config" >> /mnt/install.sh
+echo "sed -i -e 's/# %wheel ALL=(ALL) NOPASSWD: ALL/%wheel ALL=(ALL) NOPASSWD: ALL/' /etc/sudoers" >> /mnt/install.sh
+echo "passwd -l root" >> /mnt/install.sh
+echo "systemctl enable dhcpcd" >> /mnt/install.sh
+echo "echo noarp >> /etc/dhcpcd.conf" >> /mnt/install.sh
+echo "mkinitcpio -p linux" >> /mnt/install.sh
+echo "grub-install $maindevice" >> /mnt/install.sh
+echo "sed -i -e 's/GRUB_TIMEOUT=5/GRUB_TIMEOUT=2/' /etc/default/grub" >> /mnt/install.sh
+echo "grub-mkconfig -o /boot/grub/grub.cfg" >> /mnt/install.sh
+
+echo "echo '$issue_update' > /usr/local/bin/issue_update.sh" >> /mnt/install.sh
+
 echo "doing chroot, to configure new system..."
 
 arch-chroot /mnt /bin/sh <<EOC
-echo $hostname > /etc/hostname
-ln -s /usr/share/zoneinfo/Europe/Berlin /etc/localtime
-sed -i -e 's/#\(de_DE\).UTF-8 UTF-8/\1.UTF-8 UTF-8/' /etc/locale.gen
-sed -i -e 's/#\(de_DE\) ISO-8859-1/\1 ISO-8859-1/' /etc/locale.gen
-sed -i -e 's/#\(de_DE\)@euro ISO-8859-15/\1@euro ISO-8859-15/' /etc/locale.gen
-locale-gen
-cat <<EOLC > /etc/locale.conf
-$locale_conf
-EOLC
-echo 'KEYMAP="de-latin1"' > /etc/vconsole.conf
-cat <<EOLC >> /etc/pacman.conf
-$archfr_repo
-EOLC
-pacman -Syy
-pacman -S yaourt --noconfirm
-sed -i -e 's/ -mtune=generic / -mtune=native /g' /etc/makepkg.conf
-sed -i -e 's/^#MAKEFLAGS="-j2"/MAKEFLAGS="-j6"/' /etc/makepkg.conf
-yaourt -S mkinitcpio-btrfs rk-server-basic linux-lts linux-lts-headers --noconfirm
-pkgfile --update
-yaourt -Rs linux --noconfirm
-yaourt -Rs linux-headers --noconfirm || true
-echo 'KEYMAP="de"' > /etc/vconsole.conf
-LISTOFADMINS=""
-for admin in "${admins[@]}"; do
-
-	useradd -m -g users -G wheel -s /bin/bash $admin
-	
-	mkdir -p ~$admin/.ssh/
-	touch ~$admin/.ssh/authorized_keys
-	chown $admin: -R ~$admin/.ssh/
-	chmod 700 ~$admin/.ssh/
-	chmod 600 ~$admin/.ssh/authorized_keys
-	echo "${sshkeys["$admin"]}" > ~$admin/.ssh/authorized_keys
-	LISTOFADMINS+=" $admin"
-done
-
-echo -e "\nAllowUsers$LISTOFADMINS" >> /etc/ssh/sshd_config;unset LISTOFADMINS
-sed -i -e 's/#UseDNS yes/UseDNS no/' /etc/ssh/sshd_config
-sed -i -e 's/#Port 22/Port 1337/' /etc/ssh/sshd_config
-sed -i -e 's/#ClientAliveInterval 0/ClientAliveInterval 2/' /etc/ssh/sshd_config
-sed -i -e 's/#ClientAliveCountMax 3/ClientAliveCountMax 5/' /etc/ssh/sshd_config
-sed -i -e 's/#Banner none/Banner \/etc\/issue/' /etc/ssh/sshd_config
-sed -i -e 's/#MaxStartups 10:30:100/MaxStartups 10:30:100/' /etc/ssh/sshd_config
-sed -i -e 's/#PermitRootLogin yes/PermitRootLogin no/' /etc/ssh/sshd_config
-sed -i -e 's/#PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
-sed -i -e 's/#PermitEmptyPasswords no/PermitEmptyPasswords no/' /etc/ssh/sshd_config
-
-sed -i -e 's/# %wheel ALL=(ALL) NOPASSWD: ALL/%wheel ALL=(ALL) NOPASSWD: ALL/' /etc/sudoers
-passwd -l root
-
-systemctl enable dhcpcd
-echo noarp >> /etc/dhcpcd.conf
-
-mkinitcpio -p linux
-grub-install $maindevice
-
-sed -i -e 's/GRUB_TIMEOUT=5/GRUB_TIMEOUT=2/' /etc/default/grub
-
-grub-mkconfig -o /boot/grub/grub.cfg
+bash /install.sh
+rm /install.sh
 EOC
 umount /mnt
