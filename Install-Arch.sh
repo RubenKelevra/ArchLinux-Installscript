@@ -111,9 +111,9 @@ Machine Uptime: $UPTIME
 
 echo "writing install-script ..."
 
-echo "admins=$admins" > /mnt/install.sh
+echo "admins='$admins'" > /mnt/install.sh
 echo "declare -A sshkeys" >> /mnt/install.sh
-echo "sshkeys=$sshkeys" >> /mnt/install.sh
+echo "sshkeys='$sshkeys'" >> /mnt/install.sh
 echo "echo '$hostname' > /etc/hostname" >> /mnt/install.sh
 echo "ln -s /usr/share/zoneinfo/Europe/Berlin /etc/localtime" >> /mnt/install.sh
 echo "sed -i -e 's/#\(de_DE\).UTF-8 UTF-8/\1.UTF-8 UTF-8/' /etc/locale.gen" >> /mnt/install.sh
