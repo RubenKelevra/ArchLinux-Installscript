@@ -76,8 +76,8 @@ pacstrap /mnt base base-devel grub
 echo "generating fstab entrys..."
 genfstab -Up /mnt >> /mnt/etc/fstab
 
-sed -i -e 's/rw,relatime,space_cache/rw,noatime,recovery,compress=zlib,autodefrag,discard,space_cache,inode_cache,nossd/' /mnt/etc/fstab
-sed -i -e 's/defaults/defaults,discard/' /mnt/etc/fstab #fixme check this
+sed -i -e 's/rw,relatime,data=ordered/rw,data=ordered,noatime,discard,journal_checksum,noatime,max_batch_time=125000,min_batch_time=15000,stripe=128/' /mnt/etc/fstab
+sed -i -e 's/defaults/defaults,discard/' /mnt/etc/fstab 
 
 echo 'KERNELVER=`uname -r` 
 LOAD=`uptime | awk -F'\''load average:'\'' '\''{ print $2 }'\''`
