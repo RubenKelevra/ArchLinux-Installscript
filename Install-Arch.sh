@@ -109,8 +109,6 @@ Machine Load: $LOAD
 Machine Uptime: $UPTIME
                                                                          " > /etc/issue' > /mnt/usr/local/bin/issue-update.sh
 
-echo "
-
 echo "writing install-script ..."
 
 echo "admins=$admins" > /mnt/install.sh
