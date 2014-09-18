@@ -4,9 +4,6 @@ hostname="$1"
 #init
 declare -A sshkeys
 
-#vars
-admins=("ruben" "sascha" "tobias" "felix")
-
 archfr_repo='
 [archlinuxfr]
 SigLevel = Optional TrustAll
@@ -105,7 +102,7 @@ Machine Uptime: $UPTIME
 
 echo "writing install-script ..."
 
-echo "admins='$admins'" > /mnt/install.sh
+echo "admins=(\"ruben\" \"sascha\" \"tobias\" \"felix\")" > /mnt/install.sh
 echo "declare -A sshkeys" >> /mnt/install.sh
 echo "sshkeys[\"ruben\"]='ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDA4VjJnNTVDxtLgQqCzOiPWsy0yBNiv32GzzYPPatKYozL8PW5hDhEWg7h8vMs5Ty77U/qijjNr4VRyKKmvDFv907f6Wg/Fnm0a7+DmzZ6M4jdEJgqM3LJc3V81aXB6vXDCpCHB3orIKVB9xz2zaBdcA1A8eNYmy7paiZZPnjnSTGDt+UNMWfKumD9TAj4zyvH3yc1MdeB2WOvWCdxQXnyVEfS/AvAIZtzZA5D2osCPKouTGpjKZXoRYqJoT7X+GltbkopFZ7As9jEMfxG3Rum8oIOrqhNwy4ipahd50RYLhBXEUFvFQpDNadlbeslgTq/P5feX1z41PUR5OgNP8cd ruben@freifunk-nrw.de
 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDIVP7CBN1orjIvx7OOvAaQ6h461ziDZjjgJSseR1GfPvpFizP80+N+6bhrOs8+sz/BxaO1kr9fpArs+g/NmMQobiiXKKmOcR+Wm1y2/LBOrtotmZZJGVQnSoQwwY9K7xhJMGKL4TlktSusvmja5kg2WAf7vW389oYqTfwVq4TgerpPSihn9vVRfVi0827MNfh5agwRIZ/OgWXd6ka/LDByQ0FtV4npFWAwx4/uWphg2t/g6vR7ZoIt5rBSR/E0VqRGMwSbwlbDbYgJTPJ3/lVCrDtVka2r1fuL5f+VyuyYhobtBwkjD5GusIB82XlvIs4KzFTOGVhPpvrmoFKaN1aJ ruben@freifunk-nrw.de_2'
