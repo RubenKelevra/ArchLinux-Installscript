@@ -151,7 +151,8 @@ echo "passwd -l root" >> /mnt/install.sh
 echo "systemctl enable dhcpcd" >> /mnt/install.sh
 echo "systemctl enable sshd" >> /mnt/install.sh
 echo "systemctl mask tmp.mount" >> /mnt/install.sh
-echo "crontab /crontab"
+echo "crontab /crontab"  >> /mnt/install.sh
+echo "chmod +x /usr/local/bin/issue_update.sh" >> /mnt/install.sh
 echo "echo noarp >> /etc/dhcpcd.conf" >> /mnt/install.sh
 echo "mkinitcpio -p linux-lts" >> /mnt/install.sh
 echo "grub-install $maindevice" >> /mnt/install.sh
