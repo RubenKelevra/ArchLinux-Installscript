@@ -95,7 +95,7 @@ echo "
 
 Machine Load: $LOAD
 Machine Uptime: $UPTIME
-                                                                         " > /etc/issue' > /mnt/usr/local/bin/issue-update.sh
+                                                                         " > /etc/issue' > /mnt/usr/local/bin/issue_update.sh
 
 echo "writing install-script ..."
 
@@ -150,16 +150,26 @@ echo "sed -i -e 's/# %wheel ALL=(ALL) NOPASSWD: ALL/%wheel ALL=(ALL) NOPASSWD: A
 echo "passwd -l root" >> /mnt/install.sh
 echo "systemctl enable dhcpcd" >> /mnt/install.sh
 echo "systemctl enable sshd" >> /mnt/install.sh
+echo "systemctl mask tmp.mount" >> /mnt/install.sh
+echo "crontab /crontab"
 echo "echo noarp >> /etc/dhcpcd.conf" >> /mnt/install.sh
 echo "mkinitcpio -p linux-lts" >> /mnt/install.sh
 echo "grub-install $maindevice" >> /mnt/install.sh
 echo "sed -i -e 's/GRUB_TIMEOUT=5/GRUB_TIMEOUT=2/' /etc/default/grub" >> /mnt/install.sh
 echo "grub-mkconfig -o /boot/grub/grub.cfg" >> /mnt/install.sh
 
+echo "0    *   * * * systemd-tmpfiles --clean
+*/15 *   * * * pacman -Syuw --noconfirm
+0    */2 * * * pacman-optimize
+*/1  *   * * * /usr/local/bin/issue_update.sh" > /mnt/crontab
+ 
+
+
 echo "doing chroot, to configure new system..."
 
 arch-chroot /mnt /bin/sh <<EOC
 bash /install.sh
 rm /install.sh
+rm /crontab
 EOC
 umount /mnt
