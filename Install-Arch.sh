@@ -1,7 +1,6 @@
 [ -z "$1" ] && (echo "supply a hostname!") && exit 1
 hostname="$1"
 
-
 archfr_repo='
 [archlinuxfr]
 SigLevel = Optional TrustAll
