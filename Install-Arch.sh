@@ -148,6 +148,7 @@ echo "sed -i -e 's/#PermitEmptyPasswords no/PermitEmptyPasswords no/' /etc/ssh/s
 echo "sed -i -e 's/# %wheel ALL=(ALL) NOPASSWD: ALL/%wheel ALL=(ALL) NOPASSWD: ALL/' /etc/sudoers" >> /mnt/install.sh
 echo "passwd -l root" >> /mnt/install.sh
 echo "systemctl enable dhcpcd" >> /mnt/install.sh
+echo "systemctl enable sshd" >> /mnt/install.sh
 echo "echo noarp >> /etc/dhcpcd.conf" >> /mnt/install.sh
 echo "mkinitcpio -p linux-lts" >> /mnt/install.sh
 echo "grub-install $maindevice" >> /mnt/install.sh
