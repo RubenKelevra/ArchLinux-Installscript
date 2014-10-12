@@ -128,12 +128,12 @@ echo "LISTOFADMINS=''"  >> /mnt/install.sh
 echo 'for admin in "${admins[@]}"; do' >> /mnt/install.sh
 echo ""  >> /mnt/install.sh
 echo '    useradd -m -g users -G wheel -s /bin/bash $admin'  >> /mnt/install.sh
-echo '    mkdir -p ~$admin/.ssh/'  >> /mnt/install.sh
-echo '    touch ~$admin/.ssh/authorized_keys'  >> /mnt/install.sh
-echo '    chown $admin: -R ~$admin/.ssh/'  >> /mnt/install.sh
-echo '    chmod 700 ~$admin/.ssh/'  >> /mnt/install.sh
-echo '    chmod 600 ~$admin/.ssh/authorized_keys'  >> /mnt/install.sh
-echo '    echo "${sshkeys["$admin"]}" > ~$admin/.ssh/authorized_keys'  >> /mnt/install.sh
+echo '    mkdir /home/$admin/.ssh/'  >> /mnt/install.sh
+echo '    touch /home/$admin/.ssh/authorized_keys'  >> /mnt/install.sh
+echo '    chown $admin: -R /home/$admin/.ssh/'  >> /mnt/install.sh
+echo '    chmod 700 /home/$admin/.ssh/'  >> /mnt/install.sh
+echo '    chmod 600 /home/$admin/.ssh/authorized_keys'  >> /mnt/install.sh
+echo '    echo "${sshkeys["$admin"]}" > /home/$admin/.ssh/authorized_keys'  >> /mnt/install.sh
 echo '    LISTOFADMINS+=" $admin"'  >> /mnt/install.sh
 echo 'done' >> /mnt/install.sh
 echo 'echo -e "\nAllowUsers$LISTOFADMINS" >> /etc/ssh/sshd_config;unset LISTOFADMINS' >> /mnt/install.sh
