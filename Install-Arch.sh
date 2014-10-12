@@ -93,7 +93,7 @@ echo "
   /  _- - _ '\''\\
  /_-'\''      '\''-_\\   connected to $short_hostname running Linux $KERNELVER
 
-Machine Load: $LOAD
+Machine Load  : $LOAD
 Machine Uptime: $UPTIME
                                                                          " > /etc/issue' > /mnt/usr/local/bin/issue_update.sh
 
