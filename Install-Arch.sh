@@ -166,4 +166,4 @@ arch-chroot /mnt /bin/sh <<EOC
 bash /install.sh
 rm /install.sh
 rm /crontab
-echo "run passwd or passwd $user to set a password, then reboot.
+echo "run passwd or passwd $user to set a password, then reboot."
