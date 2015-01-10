@@ -120,10 +120,6 @@ echo "pacman -Syy" >> /mnt/install.sh
 echo "pacman -S yaourt --noconfirm" >> /mnt/install.sh
 echo "sed -i -e 's/ -mtune=generic / -mtune=native /g' /etc/makepkg.conf" >> /mnt/install.sh
 echo "sed -i -e 's/^#MAKEFLAGS=\"-j2\"/MAKEFLAGS=\"-j6\"/' /etc/makepkg.conf" >> /mnt/install.sh
-echo "yaourt -S rk-server-basic linux-lts linux-lts-headers --noconfirm" >> /mnt/install.sh
-echo "pkgfile --update" >> /mnt/install.sh
-echo "yaourt -Rs linux --noconfirm" >> /mnt/install.sh
-echo "yaourt -Rs linux-headers --noconfirm || true" >> /mnt/install.sh
 echo "LISTOFADMINS=''"  >> /mnt/install.sh
 echo 'for admin in "${admins[@]}"; do' >> /mnt/install.sh
 echo ""  >> /mnt/install.sh
@@ -136,6 +132,10 @@ echo '    chmod 600 /home/$admin/.ssh/authorized_keys'  >> /mnt/install.sh
 echo '    echo "${sshkeys["$admin"]}" > /home/$admin/.ssh/authorized_keys'  >> /mnt/install.sh
 echo '    LISTOFADMINS+=" $admin"'  >> /mnt/install.sh
 echo 'done' >> /mnt/install.sh
+echo 'su $admin yaourt -S rk-server-basic linux-lts linux-lts-headers --noconfirm' >> /mnt/install.sh
+echo "pkgfile --update" >> /mnt/install.sh
+echo 'su $admin yaourt -Rs linux --noconfirm' >> /mnt/install.sh
+echo 'su $admin yaourt -Rs linux-headers --noconfirm || true' >> /mnt/install.sh
 echo 'echo -e "\nAllowUsers$LISTOFADMINS" >> /etc/ssh/sshd_config;unset LISTOFADMINS' >> /mnt/install.sh
 echo "sed -i -e 's/#UseDNS yes/UseDNS no/' /etc/ssh/sshd_config" >> /mnt/install.sh
 echo "sed -i -e 's/#Port 22/Port 1337/' /etc/ssh/sshd_config" >> /mnt/install.sh
