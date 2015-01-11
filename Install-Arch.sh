@@ -132,10 +132,12 @@ echo '    chmod 600 /home/$admin/.ssh/authorized_keys'  >> /mnt/install.sh
 echo '    echo "${sshkeys["$admin"]}" > /home/$admin/.ssh/authorized_keys'  >> /mnt/install.sh
 echo '    LISTOFADMINS+=" $admin"'  >> /mnt/install.sh
 echo 'done' >> /mnt/install.sh
-echo 'su $admin yaourt -S rk-server-basic linux-lts linux-lts-headers --noconfirm' >> /mnt/install.sh
+echo "sed -i -e 's/# %wheel ALL=(ALL) NOPASSWD: ALL/%wheel ALL=(ALL) NOPASSWD: ALL/' /etc/sudoers" >> /mnt/install.sh
+echo 'echo "running yaourt with $admin-user"' >> /mnt/install.sh
+echo 'su $admin -c "yaourt -S rk-server-basic linux-lts linux-lts-headers --noconfirm"' >> /mnt/install.sh
 echo "pkgfile --update" >> /mnt/install.sh
-echo 'su $admin yaourt -Rs linux --noconfirm' >> /mnt/install.sh
-echo 'su $admin yaourt -Rs linux-headers --noconfirm || true' >> /mnt/install.sh
+echo 'su $admin -c "yaourt -Rs linux --noconfirm"' >> /mnt/install.sh
+echo 'su $admin -c "yaourt -Rs linux-headers --noconfirm || true"' >> /mnt/install.sh
 echo 'echo -e "\nAllowUsers$LISTOFADMINS" >> /etc/ssh/sshd_config;unset LISTOFADMINS' >> /mnt/install.sh
 echo "sed -i -e 's/#UseDNS yes/UseDNS no/' /etc/ssh/sshd_config" >> /mnt/install.sh
 echo "sed -i -e 's/#Port 22/Port 1337/' /etc/ssh/sshd_config" >> /mnt/install.sh
@@ -146,7 +148,6 @@ echo "sed -i -e 's/#MaxStartups 10:30:100/MaxStartups 10:30:100/' /etc/ssh/sshd_
 echo "sed -i -e 's/#PermitRootLogin yes/PermitRootLogin no/' /etc/ssh/sshd_config" >> /mnt/install.sh
 echo "sed -i -e 's/#PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config" >> /mnt/install.sh
 echo "sed -i -e 's/#PermitEmptyPasswords no/PermitEmptyPasswords no/' /etc/ssh/sshd_config" >> /mnt/install.sh
-echo "sed -i -e 's/# %wheel ALL=(ALL) NOPASSWD: ALL/%wheel ALL=(ALL) NOPASSWD: ALL/' /etc/sudoers" >> /mnt/install.sh
 echo "passwd -l root" >> /mnt/install.sh
 echo "systemctl enable dhcpcd" >> /mnt/install.sh
 echo "systemctl enable sshd" >> /mnt/install.sh
