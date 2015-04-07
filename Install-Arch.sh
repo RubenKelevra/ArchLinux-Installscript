@@ -59,17 +59,17 @@ mainpartition=$(echo "$maindevice")2
 swappartition=$(echo "$maindevice")1
 
 echo "creating and mounting new filesystem..."
-mkswap $swappartition
-swapon $swappartition
-mkfs.ext4 -L root $mainpartition
-mount $mainpartition /mnt -O rw,noatime,discard,journal_checksum,max_batch_time=125000,min_batch_time=15000,stripe=128
+mkswap $swappartition || exit 1
+swapon $swappartition || exit 1
+mkfs.ext4 -L root $mainpartition || exit 1
+mount $mainpartition /mnt -O rw,noatime,discard,journal_checksum,max_batch_time=125000,min_batch_time=15000,stripe=128 || exit 1
 echo "install basic system..."
-pacstrap /mnt base base-devel grub
+pacstrap /mnt base base-devel grub || exit 1
 echo "generating fstab entrys..."
-genfstab -Up /mnt >> /mnt/etc/fstab
+genfstab -Up /mnt >> /mnt/etc/fstab || exit 1
 
-sed -i -e 's/rw,relatime,data=ordered/rw,data=ordered,noatime,discard,journal_checksum,max_batch_time=125000,min_batch_time=15000,stripe=128/' /mnt/etc/fstab
-sed -i -e 's/defaults/defaults,discard/' /mnt/etc/fstab 
+sed -i -e 's/rw,relatime,data=ordered/rw,data=ordered,noatime,discard,journal_checksum,max_batch_time=125000,min_batch_time=15000,stripe=128/' /mnt/etc/fstab || exit 1
+sed -i -e 's/defaults/defaults,discard/' /mnt/etc/fstab || exit 1
 
 echo 'KERNELVER=`uname -r` 
 LOAD=`uptime | awk -F'\''load average:'\'' '\''{ print $2 }'\''`
