@@ -44,6 +44,10 @@ if [ $no_dev -gt 1 ]; then
 fi
 unset no_dev
 
+echo "unmount / unswap any existing partions..."
+swapoff -a > /dev/null
+umount -l /dev/$maindevice* > /dev/null
+
 #run
 echo "overwriting any existing MBR"
 dd if=/dev/zero of=$maindevice bs=512 count=1 || exit 1
