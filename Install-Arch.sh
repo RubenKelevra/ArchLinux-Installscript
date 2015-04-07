@@ -177,3 +177,4 @@ rm /install.sh
 rm /crontab
 EOC
 umount /mnt
+swapoff -a
