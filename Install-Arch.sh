@@ -45,6 +45,10 @@ fi
 unset no_dev
 
 #run
+echo "overwriting any existing MBR"
+dd if=/dev/zero of=$maindevice bs=512 count=1 || exit 1
+
+partprobe || exit 1
 
 echo "creating partion..."
 parted -s -- $maindevice mklabel msdos
