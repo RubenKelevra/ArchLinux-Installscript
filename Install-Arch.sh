@@ -62,7 +62,7 @@ parted -a optimal -s -- $maindevice mkpart primary ext4 2GB 99%FREE #btrfs not s
 mainpartition=$(echo "$maindevice")2
 swappartition=$(echo "$maindevice")1
 
-"overwriting first 100 MByte of the new partitions, to remove all existing filesystem-remains..." 
+echo "overwriting first 100 MByte of the new partitions, to remove all existing filesystem-remains..." 
 dd if=/dev/zero of=$swappartition bs=1M count=100 || exit 1
 echo "swap-partion done."
 dd if=/dev/zero of=$mainpartition bs=1M count=100 || exit 1
