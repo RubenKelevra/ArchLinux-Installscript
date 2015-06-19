@@ -46,7 +46,7 @@ unset no_dev
 
 echo "unmount / unswap any existing partions..."
 swapoff -a > /dev/null
-umount -l /dev/$maindevice* > /dev/null
+umount -l $maindevice* > /dev/null
 
 #run
 echo "overwriting any existing MBR"
