@@ -150,6 +150,7 @@ echo '    LISTOFADMINS+=" $admin"'  >> /mnt/install.sh
 echo 'done' >> /mnt/install.sh
 echo "sed -i -e 's/# %wheel ALL=(ALL) NOPASSWD: ALL/%wheel ALL=(ALL) NOPASSWD: ALL/' /etc/sudoers" >> /mnt/install.sh
 echo 'echo "running yaourt with $admin-user"' >> /mnt/install.sh
+echo 'su $admin -c "yaourt -S rk-server-basic --noconfirm"' >> /mnt/install.sh
 echo "pkgfile --update" >> /mnt/install.sh
 echo 'echo -e "\nAllowUsers$LISTOFADMINS" >> /etc/ssh/sshd_config;unset LISTOFADMINS' >> /mnt/install.sh
 echo "sed -i -e 's/#UseDNS yes/UseDNS no/' /etc/ssh/sshd_config" >> /mnt/install.sh
@@ -162,6 +163,7 @@ echo "sed -i -e 's/#PermitRootLogin yes/PermitRootLogin no/' /etc/ssh/sshd_confi
 echo "sed -i -e 's/#PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config" >> /mnt/install.sh
 echo "sed -i -e 's/#PermitEmptyPasswords no/PermitEmptyPasswords no/' /etc/ssh/sshd_config" >> /mnt/install.sh
 echo "passwd -l root" >> /mnt/install.sh
+echo "systemctl enable dhcpcd" >> /mnt/install.sh
 echo "systemctl enable sshd" >> /mnt/install.sh
 echo "systemctl mask tmp.mount" >> /mnt/install.sh
 echo "crontab /crontab"  >> /mnt/install.sh
