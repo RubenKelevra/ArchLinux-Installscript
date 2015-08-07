@@ -189,6 +189,7 @@ read -p "Install passwords manually, then press [Enter] to finish installation..
 rm /install.sh
 rm /crontab
 EOC
+umount /mnt/boot
 umount /mnt
 swapoff -a
 sync
