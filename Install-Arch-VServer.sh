@@ -52,7 +52,7 @@ umount -l $maindevice* > /dev/null
 echo "overwriting any existing MBR"
 dd if=/dev/zero of=$maindevice bs=512 count=1 || exit 1
 
-partprobe || exit 1
+partprobe || true
 
 echo "creating partion..."
 parted -s -- $maindevice mklabel msdos
