@@ -72,7 +72,7 @@ echo "creating and mounting new filesystem..."
 mkswap $swappartition || exit 1
 swapon $swappartition || exit 1
 mkfs.ext4 -L root $mainpartition || exit 1
-mount $mainpartition /mnt -O rw,noatime,discard,journal_checksum,max_batch_time=125000,min_batch_time=15000,stripe=128 || exit 1
+mount $mainpartition /mnt -O rw,noatime || exit 1
 echo "install basic system..."
 pacstrap /mnt base base-devel grub || exit 1
 echo "generating fstab entrys..."
