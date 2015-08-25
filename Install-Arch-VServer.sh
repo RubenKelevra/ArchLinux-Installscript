@@ -133,7 +133,6 @@ echo "echo '$archfr_repo' >> /etc/pacman.conf" >> /mnt/install.sh
 echo "pacman -Syy" >> /mnt/install.sh
 echo "pacman -S yaourt --noconfirm" >> /mnt/install.sh
 echo "sed -i -e 's/ -mtune=generic / -mtune=native /g' /etc/makepkg.conf" >> /mnt/install.sh
-echo "sed -i -e 's/^#MAKEFLAGS=\"-j2\"/MAKEFLAGS=\"-j6\"/' /etc/makepkg.conf" >> /mnt/install.sh
 echo "LISTOFADMINS=''"  >> /mnt/install.sh
 echo 'for admin in "${admins[@]}"; do' >> /mnt/install.sh
 echo ""  >> /mnt/install.sh
