@@ -174,7 +174,7 @@ echo "crontab /crontab"  >> /mnt/install.sh
 echo "chmod +x /usr/local/bin/issue_update.sh" >> /mnt/install.sh
 echo "echo noarp >> /etc/dhcpcd.conf" >> /mnt/install.sh
 echo "mkinitcpio -p linux" >> /mnt/install.sh
-echo "grub-install $maindevice" >> /mnt/install.sh
+echo "grub-install $maindevice --target=i386-pc" >> /mnt/install.sh
 echo "sed -i -e 's/GRUB_TIMEOUT=5/GRUB_TIMEOUT=2/' /etc/default/grub" >> /mnt/install.sh
 echo "grub-mkconfig -o /boot/grub/grub.cfg" >> /mnt/install.sh
 
