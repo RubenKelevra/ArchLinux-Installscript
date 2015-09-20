@@ -33,6 +33,13 @@ if test $? -ne 0; then
     echo "DNS-resolution failed.";exit 1
 fi
 
+echo "Updating time..."
+ntpdate pool.ntp.org >/dev/null 2>&1
+if test $? -ne 0; then
+    echo "NTP failed.";exit 1
+fi
+
+
 maindevice=""
 no_dev=0
 [ -b /dev/sda ] && maindevice="/dev/sda"&&no_dev+=1
