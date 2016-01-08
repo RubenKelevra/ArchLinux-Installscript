@@ -62,8 +62,8 @@ swapoff -a > /dev/null
 umount -l $maindevice* > /dev/null
 
 #run
-echo "overwriting any existing MBR"
-dd if=/dev/zero of=$maindevice bs=512 count=1 || exit 1
+echo "overwriting any existing MBR/GPT"
+dd if=/dev/zero of=$maindevice bs=5M count=10 || exit 1
 
 partprobe || true
 
