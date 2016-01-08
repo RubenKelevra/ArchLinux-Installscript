@@ -1,6 +1,8 @@
 [ -z "$1" ] && (echo "supply a hostname!") && exit 1
 hostname="$1"
 
+[ ! -z "$2" ] && [ "$2" == "swap" ] && swap=1
+
 extrarepos='
 [archlinuxfr]
 SigLevel = Optional TrustAll
