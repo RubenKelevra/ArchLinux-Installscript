@@ -7,10 +7,11 @@ swap=0
 extrarepos='
 [archlinuxfr]
 SigLevel = Optional TrustAll
-Server = http://repo.archlinux.fr/$arch'
+Server = http://repo.archlinux.fr/$arch
 
-# [demz-repo-core]
-# Server = http://demizerone.com/$repo/$arch'
+[demz-repo-core]
+Server = http://demizerone.com/$repo/$arch'
+
 locale_conf='LANG=de_DE.UTF-8
 LC_CTYPE="de_DE.UTF-8"
 LC_NUMERIC="de_DE.UTF-8"
