@@ -232,6 +232,7 @@ echo "mkinitcpio -p linux" >> /mnt/install.sh
 echo "grub-install $maindevice --target=i386-pc" >> /mnt/install.sh
 echo "sed -i -e 's/GRUB_TIMEOUT=5/GRUB_TIMEOUT=1/' /etc/default/grub" >> /mnt/install.sh
 echo "grub-mkconfig -o /boot/grub/grub.cfg" >> /mnt/install.sh
+echo "rm -fdR /var/cache/pacman/pkg/*" >> /mnt/install.sh
 
 echo "0    *   * * * systemd-tmpfiles --clean
 0    */2 * * * pacman-optimize
@@ -244,5 +245,9 @@ bash /install.sh
 rm /install.sh
 rm /crontab
 EOC
-umount /mnt
+umount /mnt/boot | exit 0
+umount /mnt | exit 0
+zfs umount -a
+zpool export zroot
+
 swapoff -a
