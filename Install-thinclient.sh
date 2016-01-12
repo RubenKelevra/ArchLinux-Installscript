@@ -50,6 +50,7 @@ echo "$extrarepos" >> /etc/pacman.conf
 pacman-key -r 5E1ABF240EE7A126 && pacman-key --lsign-key 5E1ABF240EE7A126
 pacman -Sy
 
+sed -i -e 's/CheckSpace/#CheckSpace/' /etc/pacman.conf #disable space check (see bug #45070)
 
 maindevice=""
 no_dev=0
@@ -129,7 +130,7 @@ zpool set cachefile=/etc/zfs/zpool.cache zroot
 mkdir -p /mnt/boot
 mount $bootpartition /mnt/boot || exit 1
 echo "install basic system..."
-pacstrap /mnt base base-devel grub archzfs-git || exit 1
+pacstrap -c /mnt base base-devel grub archzfs-git || exit 1
 cp /etc/zfs/zpool.cache /mnt/etc/zfs/zpool.cache
 echo "generating fstab entrys..."
 genfstab -Up /mnt >> /mnt/etc/fstab || exit 1
@@ -177,6 +178,7 @@ echo "sshkeys[\"maintain\"]='ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDA4VjJnNTVDxt
 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDIVP7CBN1orjIvx7OOvAaQ6h461ziDZjjgJSseR1GfPvpFizP80+N+6bhrOs8+sz/BxaO1kr9fpArs+g/NmMQobiiXKKmOcR+Wm1y2/LBOrtotmZZJGVQnSoQwwY9K7xhJMGKL4TlktSusvmja5kg2WAf7vW389oYqTfwVq4TgerpPSihn9vVRfVi0827MNfh5agwRIZ/OgWXd6ka/LDByQ0FtV4npFWAwx4/uWphg2t/g6vR7ZoIt5rBSR/E0VqRGMwSbwlbDbYgJTPJ3/lVCrDtVka2r1fuL5f+VyuyYhobtBwkjD5GusIB82XlvIs4KzFTOGVhPpvrmoFKaN1aJ r2
 ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBAFGe5/7cfDkbssq+byjSC1NEfFRIT9h7q26hKESXl2OSQuNj/vRLXlyF1iz8zwFamg0YSVjWb6KwvydimpfXNp8KQE3DKefEzn85eZMO3igMUl9tlnUQFU8skNFyG0o7aSSvw5P4AF5lFEJWqXT8VIkivU5ejI1Ua62CihwMccZ5LbFsg== r@i3-2014-09-22'" >> /mnt/install.sh
 echo "echo '$hostname' > /etc/hostname" >> /mnt/install.sh
+echo "sed -i -e 's/CheckSpace/#CheckSpace/' /etc/pacman.conf #disable space check (see bug #45070)" >> /mnt/install.sh
 echo "ln -s /usr/share/zoneinfo/Europe/Berlin /etc/localtime" >> /mnt/install.sh
 echo "sed -i -e 's/#\(de_DE\).UTF-8 UTF-8/\1.UTF-8 UTF-8/' /etc/locale.gen" >> /mnt/install.sh
 echo "sed -i -e 's/#\(de_DE\) ISO-8859-1/\1 ISO-8859-1/' /etc/locale.gen" >> /mnt/install.sh
