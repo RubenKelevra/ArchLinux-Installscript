@@ -74,10 +74,12 @@ parted -s -- $maindevice mklabel msdos
 if [ "$swap" -eq "1" ]; then
   parted -a optimal -s -- $maindevice mkpart primary linux-swap 4096S 2GB
   parted -a optimal -s -- $maindevice mkpart primary ext4 2GB 99%FREE
+  parted $maindevice set 2 boot on
   swappartition=$(echo "$maindevice")1
   mainpartition=$(echo "$maindevice")2
 else
   parted -a optimal -s -- $maindevice mkpart primary ext4 4096S 99%FREE
+  parted $maindevice set 1 boot on
   mainpartition=$(echo "$maindevice")1
 fi
   
