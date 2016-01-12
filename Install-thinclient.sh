@@ -46,6 +46,10 @@ if test $? -ne 0; then
     echo "NTP failed.";exit 1
 fi
 
+echo "$extrarepos" >> /etc/pacman.conf
+pacman-key -r 5E1ABF240EE7A126 && pacman-key --lsign-key 5E1ABF240EE7A126
+pacman -Sy
+
 
 maindevice=""
 no_dev=0
@@ -115,17 +119,18 @@ zfs set redundant_metadata=most zroot
 zfs set mountpoint=/ zroot
 zfs set xattr=sa zroot
 zfs set acltype=posixacl zroot
-zpool set bootfs=zroot zroot
+#zpool set bootfs=zroot zroot
 
 zpool export zroot
 
-zpool import -d /dev/disk/by-partuuid -R /mnt zroot
+zpool import -R /mnt zroot
 zpool set cachefile=/etc/zfs/zpool.cache zroot
-cp /etc/zfs/zpool.cache /mnt/etc/zfs/zpool.cache
 
+mkdir -p /mnt/boot
 mount $bootpartition /mnt/boot || exit 1
 echo "install basic system..."
-pacstrap /mnt base base-devel grub || exit 1
+pacstrap /mnt base base-devel grub archzfs-git || exit 1
+cp /etc/zfs/zpool.cache /mnt/etc/zfs/zpool.cache
 echo "generating fstab entrys..."
 genfstab -Up /mnt >> /mnt/etc/fstab || exit 1
 
