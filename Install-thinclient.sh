@@ -72,22 +72,28 @@ echo "creating partion..."
 parted -s -- $maindevice mklabel msdos
 
 if [ "$swap" -eq "1" ]; then
-  parted -a optimal -s -- $maindevice mkpart primary linux-swap 4096S 2GB
-  parted -a optimal -s -- $maindevice mkpart primary ext4 2GB 99%FREE
-  parted $maindevice set 2 boot on
-  swappartition=$(echo "$maindevice")1
-  mainpartition=$(echo "$maindevice")2
-else
-  parted -a optimal -s -- $maindevice mkpart primary ext4 4096S 99%FREE
+  parted -a optimal -s -- $maindevice mkpart primary ext4 4096S 70MB
+  parted -a optimal -s -- $maindevice mkpart primary linux-swap 70MB 2070MB
+  parted -a optimal -s -- $maindevice mkpart primary ext4 2070MB 99%FREE
   parted $maindevice set 1 boot on
-  mainpartition=$(echo "$maindevice")1
+  bootpartition=$(echo "$maindevice")1
+  swappartition=$(echo "$maindevice")2
+  mainpartition=$(echo "$maindevice")3
+else
+  parted -a optimal -s -- $maindevice mkpart primary ext4 4096S 70MB
+  parted -a optimal -s -- $maindevice mkpart primary ext4 70MB 99%FREE
+  parted $maindevice set 1 boot on
+  bootpartition=$(echo "$maindevice")1
+  mainpartition=$(echo "$maindevice")2
 fi
   
-echo "overwriting first 100 MByte of the new partition(s), to remove all existing filesystem-remains..." 
-if [ "$swap" -eq "1" ]; then
+echo 'overwriting first 100 MByte of the new partition(s), to remove all existing filesystem-remains...'
+if [ "$swap" -eq '1' ]; then
   dd if=/dev/zero of=$swappartition bs=1M count=100 || exit 1
   echo "swap-partion done."
 fi
+dd if=/dev/zero of=$bootpartition bs=1M count=100 || exit 1
+echo "boot-partion done."
 dd if=/dev/zero of=$mainpartition bs=1M count=100 || exit 1
 echo "root-partion done."
 
@@ -98,14 +104,32 @@ if [ "$swap" -eq "1" ]; then
   swapon $swappartition || exit 1
 fi
 
-mkfs.ext4 -L root $mainpartition || exit 1
-mount $mainpartition /mnt -O rw,noatime || exit 1
+mkfs.ext4 -L boot $bootpartition || exit 1
+#mkfs.ext4 -L root $mainpartition || exit 1
+zpool create zroot $mainpartition || exit 1
+
+zfs set atime=off zroot
+zfs set compression=gzip-9 zroot
+zfs set dedup=on zroot
+zfs set redundant_metadata=most zroot
+zfs set mountpoint=/ zroot
+zfs set xattr=sa zroot
+zfs set acltype=posixacl zroot
+zpool set bootfs=zroot zroot
+
+zpool export zroot
+
+zpool import -d /dev/disk/by-partuuid -R /mnt zroot
+zpool set cachefile=/etc/zfs/zpool.cache zroot
+cp /etc/zfs/zpool.cache /mnt/etc/zfs/zpool.cache
+
+mount $bootpartition /mnt/boot || exit 1
 echo "install basic system..."
 pacstrap /mnt base base-devel grub || exit 1
 echo "generating fstab entrys..."
 genfstab -Up /mnt >> /mnt/etc/fstab || exit 1
 
-sed -i -e 's/rw,relatime,data=ordered/rw,data=ordered,noatime,discard,max_batch_time=125000,min_batch_time=15000,stripe=128/' /mnt/etc/fstab || exit 1
+sed -i -e 's/rw,relatime,data=ordered/rw,data=ordered,noatime,discard/' /mnt/etc/fstab || exit 1
 if [ "$swap" -eq "1" ]; then
   sed -i -e 's/defaults/defaults,discard/' /mnt/etc/fstab || exit 1
 fi
