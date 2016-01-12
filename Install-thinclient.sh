@@ -92,7 +92,7 @@ if [ "$swap" -eq '1' ]; then
   dd if=/dev/zero of=$swappartition bs=1M count=100 || exit 1
   echo "swap-partion done."
 fi
-dd if=/dev/zero of=$bootpartition bs=1M count=100 || exit 1
+dd if=/dev/zero of=$bootpartition bs=1M count=50 || exit 1
 echo "boot-partion done."
 dd if=/dev/zero of=$mainpartition bs=1M count=100 || exit 1
 echo "root-partion done."
