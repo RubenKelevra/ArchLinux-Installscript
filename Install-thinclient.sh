@@ -110,6 +110,7 @@ if [ "$swap" -eq "1" ]; then
 fi
 
 mkfs.ext4 -L boot $bootpartition || exit 1
+zpool export zroot || echo ""
 zpool labelclear -f $mainpartition || echo "labelclear failed, ignoring"
 zpool create zroot $mainpartition || exit 1
 
