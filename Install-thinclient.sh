@@ -252,10 +252,21 @@ echo "grub-install $maindevice --target=i386-pc" >> /mnt/install.sh
 echo "sed -i -e 's/GRUB_TIMEOUT=5/GRUB_TIMEOUT=1/' /etc/default/grub" >> /mnt/install.sh
 echo "grub-mkconfig -o /boot/grub/grub.cfg" >> /mnt/install.sh
 echo "rm -fdR /var/cache/pacman/pkg/*" >> /mnt/install.sh
+echo "mv /remotedesktop.desktop /usr/share/applications/" >> /mnt/install.sh
 
 echo "0    *   * * * systemd-tmpfiles --clean
 0    */2 * * * pacman-optimize
 */1  *   * * * /usr/local/bin/issue_update.sh" > /mnt/crontab
+
+
+echo "[Desktop Entry]
+Name=Remote Desktop
+Type=Application
+Comment=Connect to a remote desktop
+Terminal=false
+Exec=/usr/sbin/rdesktop -u user -d domain -P 192.168.0.1:3389
+Categories=Systemtools;
+GenericName=Remote Desktop" > /mnt/remotedesktop.desktop
  
 echo "doing chroot, to configure new system..."
 
