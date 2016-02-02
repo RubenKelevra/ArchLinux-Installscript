@@ -229,6 +229,7 @@ echo 'su $admin -c "yaourt -S rk-server-basic --noconfirm"' >> /mnt/install.sh
 echo 'rm -fdR /var/cache/pacman/pkg/*' >> /mnt/install.sh
 echo 'su $admin -c "yaourt -S rdesktop lxde lxkb_config-git xterm xf86-input-mouse xf86-input-keyboard xf86-video-intel xf86-video-sis xf86-video-vesa --noconfirm"' >> /mnt/install.sh
 echo "pkgfile --update" >> /mnt/install.sh
+echo "systemctl enable lxdm" >> /mnt/install.sh
 echo 'echo -e "\nAllowUsers$LISTOFADMINS" >> /etc/ssh/sshd_config;unset LISTOFADMINS' >> /mnt/install.sh
 echo "sed -i -e 's/#UseDNS yes/UseDNS no/' /etc/ssh/sshd_config" >> /mnt/install.sh
 echo "sed -i -e 's/#Port 22/Port 1337/' /etc/ssh/sshd_config" >> /mnt/install.sh
