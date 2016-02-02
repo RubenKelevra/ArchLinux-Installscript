@@ -4,6 +4,9 @@ hostname="$1"
 swap=0
 [ ! -z "$2" ] && [ "$2" == "swap" ] && swap=1
 
+extfour=0
+[ ! -z "$3" ] && [ "$3" == "ext4" ] && extfour=1
+
 extrarepos='
 [archlinuxfr]
 SigLevel = Optional TrustAll
@@ -50,7 +53,9 @@ echo "$extrarepos" >> /etc/pacman.conf
 pacman-key -r 5E1ABF240EE7A126 && pacman-key --lsign-key 5E1ABF240EE7A126
 pacman -Sy
 
-sed -i -e 's/CheckSpace/#CheckSpace/' /etc/pacman.conf #disable space check (see bug #45070)
+if [ "$extfour" -eq "0" ]; then
+	sed -i -e 's/CheckSpace/#CheckSpace/' /etc/pacman.conf #disable space check (see bug #45070)
+fi
 
 maindevice=""
 no_dev=0
@@ -110,23 +115,28 @@ if [ "$swap" -eq "1" ]; then
 fi
 
 mkfs.ext4 -L boot $bootpartition || exit 1
-zpool export zroot || echo ""
-zpool labelclear -f $mainpartition || echo "labelclear failed, ignoring"
-zpool create zroot $mainpartition || exit 1
+if [ "$extfour" -eq "0" ]; then
+	zpool export zroot || echo ""
+	zpool labelclear -f $mainpartition || echo "labelclear failed, ignoring"
+	zpool create zroot $mainpartition || exit 1
 
-zfs set atime=off zroot
-zfs set compression=gzip-9 zroot
-zfs set dedup=on zroot
-zfs set redundant_metadata=most zroot
-zfs set mountpoint=/ zroot
-zfs set xattr=sa zroot
-zfs set acltype=posixacl zroot
-#zpool set bootfs=zroot zroot
+	zfs set atime=off zroot
+	zfs set compression=gzip-9 zroot
+	zfs set dedup=on zroot
+	zfs set redundant_metadata=most zroot
+	zfs set mountpoint=/ zroot
+	zfs set xattr=sa zroot
+	zfs set acltype=posixacl zroot
+	#zpool set bootfs=zroot zroot
 
-zpool export zroot
+	zpool export zroot
 
-zpool import -R /mnt zroot
-zpool set cachefile=/etc/zfs/zpool.cache zroot
+	zpool import -R /mnt zroot
+	zpool set cachefile=/etc/zfs/zpool.cache zroot
+else
+	mkfs.ext4 -L root $mainpartition || exit 1
+	mount $mainpartition /mnt -O rw,noatime || exit 1
+fi
 
 mkdir -p /mnt/boot
 mount $bootpartition /mnt/boot || exit 1
