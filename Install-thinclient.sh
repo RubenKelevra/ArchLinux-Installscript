@@ -100,11 +100,14 @@ fi
 echo 'overwriting first 100 MByte of the new partition(s), to remove all existing filesystem-remains...'
 if [ "$swap" -eq '1' ]; then
   dd if=/dev/zero of=$swappartition bs=1M count=100 || exit 1
+  wipefs --all $swappartition
   echo "swap-partion done."
 fi
 dd if=/dev/zero of=$bootpartition bs=1M count=50 || exit 1
+wipefs --all $bootpartition
 echo "boot-partion done."
 dd if=/dev/zero of=$mainpartition bs=1M count=100 || exit 1
+wipefs --all $mainpartition
 echo "root-partion done."
 
 echo "creating and mounting new filesystem(s)..."
