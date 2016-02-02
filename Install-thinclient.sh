@@ -144,8 +144,12 @@ fi
 mkdir -p /mnt/boot
 mount $bootpartition /mnt/boot || exit 1
 echo "install basic system..."
-pacstrap -c /mnt base base-devel grub archzfs-git || exit 1
-cp /etc/zfs/zpool.cache /mnt/etc/zfs/zpool.cache
+if [ "$extfour" -eq "0" ]; then
+	pacstrap -c /mnt base base-devel grub archzfs-git || exit 1
+	cp /etc/zfs/zpool.cache /mnt/etc/zfs/zpool.cache
+else
+	pacstrap -c /mnt base base-devel grub || exit 1
+fi
 echo "generating fstab entrys..."
 genfstab -Up /mnt >> /mnt/etc/fstab || exit 1
 
@@ -260,8 +264,11 @@ rm /install.sh
 rm /crontab
 EOC
 umount /mnt/boot | exit 0
-umount /mnt | exit 0
-zfs umount -a
-zpool export zroot
 
+if [ "$extfour" -eq "0" ]; then 
+	zfs umount -a
+	zpool export zroot
+else
+	umount /mnt | exit 0
+fi
 swapoff -a
