@@ -6,8 +6,22 @@ extrarepos='
 SigLevel = Optional TrustAll
 Server = http://repo.archlinux.fr/$arch
 
-[demz-repo-core]
-Server = http://demizerone.com/$repo/$arch'
+[repo-ck]
+Server = http://repo-ck.com/$arch
+Server = http://repo-ck.com/$arch
+Server = http://repo-ck.com/$arch
+Server = http://repo-ck.com/$arch
+Server = http://repo-ck.com/$arch
+Server = http://repo-ck.com/$arch
+Server = http://repo-ck.com/$arch
+Server = http://repo-ck.com/$arch
+Server = http://repo-ck.com/$arch
+Server = http://repo-ck.com/$arch
+Server = http://repo-ck.com/$arch
+Server = http://repo-ck.com/$arch
+
+[archzfs]
+Server = http://archzfs.com/$repo/x86_64'
 locale_conf='LANG=de_DE.UTF-8
 LC_CTYPE="de_DE.UTF-8"
 LC_NUMERIC="de_DE.UTF-8"
@@ -72,7 +86,7 @@ parted -a optimal -s -- $maindevice mkpart primary ext4 2GB 99%FREE #btrfs not s
 mainpartition=$(echo "$maindevice")2
 swappartition=$(echo "$maindevice")1
 
-echo "overwriting first 100 MByte of the new partitions, to remove all existing filesystem-remains..." 
+echo "overwriting first 100 MByte of the new partitions, to remove all existing filesystem-remains..."
 dd if=/dev/zero of=$swappartition bs=1M count=100 || exit 1
 echo "swap-partion done."
 dd if=/dev/zero of=$mainpartition bs=1M count=100 || exit 1
@@ -91,7 +105,7 @@ genfstab -Up /mnt >> /mnt/etc/fstab || exit 1
 sed -i -e 's/rw,relatime,data=ordered/rw,data=ordered,noatime,discard,journal_checksum,max_batch_time=125000,min_batch_time=15000,stripe=128/' /mnt/etc/fstab || exit 1
 sed -i -e 's/defaults/defaults,discard/' /mnt/etc/fstab || exit 1
 
-echo 'KERNELVER=`uname -r` 
+echo 'KERNELVER=`uname -r`
 LOAD=`uptime | awk -F'\''load average:'\'' '\''{ print $2 }'\''`
 
 # get uptime from /proc/uptime
@@ -187,7 +201,7 @@ echo "0    *   * * * systemd-tmpfiles --clean
 */15 *   * * * pacman -Syuw --noconfirm
 0    */2 * * * pacman-optimize
 */1  *   * * * /usr/local/bin/issue_update.sh" > /mnt/crontab
- 
+
 
 
 echo "doing chroot, to configure new system..."
