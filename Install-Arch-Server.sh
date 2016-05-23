@@ -55,6 +55,7 @@ ntpdate pool.ntp.org >/dev/null 2>&1
 if test $? -ne 0; then
     echo "NTP failed.";exit 1
 fi
+hwclock -w || true
 
 
 maindevice=""
