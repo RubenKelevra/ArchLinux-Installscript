@@ -154,6 +154,7 @@ echo "sed -i -e 's/#\(de_DE\)@euro ISO-8859-15/\1@euro ISO-8859-15/' /etc/locale
 echo "locale-gen" >> /mnt/install.sh
 echo "echo '$locale_conf' > /etc/locale.conf" >> /mnt/install.sh
 echo "echo 'KEYMAP=\"de-latin1\"' > /etc/vconsole.conf" >> /mnt/install.sh
+echo "pacman-key --refresh-keys" >> /mnt/install.sh
 echo "echo '$extrarepos' >> /etc/pacman.conf" >> /mnt/install.sh
 echo "dirmngr < /dev/null" >> /mnt/install.sh
 echo "pacman-key -r 5E1ABF240EE7A126 && pacman-key --lsign-key 5E1ABF240EE7A126" >> /mnt/install.sh
