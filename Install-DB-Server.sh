@@ -221,5 +221,5 @@ bash /install.sh
 rm /install.sh
 rm /crontab
 EOC
-umount /mnt
+umount -R /mnt
 swapoff -a
