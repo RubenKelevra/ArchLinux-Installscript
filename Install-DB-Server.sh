@@ -1,10 +1,27 @@
 [ -z "$1" ] && (echo "supply a hostname!") && exit 1
 hostname="$1"
 
-archfr_repo='
+extrarepos='
 [archlinuxfr]
 SigLevel = Optional TrustAll
-Server = http://repo.archlinux.fr/$arch'
+Server = http://repo.archlinux.fr/$arch
+
+[repo-ck]
+Server = http://repo-ck.com/$arch
+Server = http://repo-ck.com/$arch
+Server = http://repo-ck.com/$arch
+Server = http://repo-ck.com/$arch
+Server = http://repo-ck.com/$arch
+Server = http://repo-ck.com/$arch
+Server = http://repo-ck.com/$arch
+Server = http://repo-ck.com/$arch
+Server = http://repo-ck.com/$arch
+Server = http://repo-ck.com/$arch
+Server = http://repo-ck.com/$arch
+Server = http://repo-ck.com/$arch
+
+[archzfs]
+Server = http://archzfs.com/$repo/x86_64'
 locale_conf='LANG=de_DE.UTF-8
 LC_CTYPE="de_DE.UTF-8"
 LC_NUMERIC="de_DE.UTF-8"
@@ -33,6 +50,14 @@ if test $? -ne 0; then
     echo "DNS-resolution failed.";exit 1
 fi
 
+echo "Updating time..."
+ntpdate pool.ntp.org >/dev/null 2>&1
+if test $? -ne 0; then
+    echo "NTP failed.";exit 1
+fi
+hwclock -w || true
+
+
 maindevice=""
 no_dev=0
 [ -b /dev/sda ] && maindevice="/dev/sda"&&no_dev+=1
@@ -56,39 +81,32 @@ partprobe || true
 
 echo "creating partion..."
 parted -s -- $maindevice mklabel msdos
-parted -a optimal -s -- $maindevice mkpart primary ext4 4096S 500MB
-parted -a optimal -s -- $maindevice mkpart primary linux-swap 500M 2500MB
-parted -a optimal -s -- $maindevice mkpart primary ext4 2500MB 99%FREE
+parted -a optimal -s -- $maindevice mkpart primary linux-swap 4096S 2GB
+parted -a optimal -s -- $maindevice mkpart primary ext4 2GB 99%FREE #btrfs not supported here
 
-bootpartition=$(echo "$maindevice")1
-swappartition=$(echo "$maindevice")2
-mainpartition=$(echo "$maindevice")3
+mainpartition=$(echo "$maindevice")2
+swappartition=$(echo "$maindevice")1
 
-echo "overwriting first 100 MByte of the new partitions, to remove all existing filesystem-remains..." 
-dd if=/dev/zero of=$bootpartition bs=1M count=100 || exit 1
-echo "boot-partion done."
+echo "overwriting first 100 MByte of the new partitions, to remove all existing filesystem-remains..."
 dd if=/dev/zero of=$swappartition bs=1M count=100 || exit 1
 echo "swap-partion done."
 dd if=/dev/zero of=$mainpartition bs=1M count=100 || exit 1
 echo "root-partion done."
 
 echo "creating and mounting new filesystem..."
-mkfs.ext4 -L boot $bootpartition || exit 1
 mkswap $swappartition || exit 1
 swapon $swappartition || exit 1
 mkfs.ext4 -L root $mainpartition || exit 1
 mount $mainpartition /mnt -O rw,noatime || exit 1
-mkdir /mnt/boot || exit 1
-mount $bootpartition /mnt/boot -O rw,noatime || exit 1
 echo "install basic system..."
 pacstrap /mnt base base-devel grub || exit 1
 echo "generating fstab entrys..."
 genfstab -Up /mnt >> /mnt/etc/fstab || exit 1
 
-sed -i -e 's/rw,relatime,data=ordered/rw,data=ordered,noatime/' /mnt/etc/fstab || exit 1
-sed -i -e 's/defaults/defaults/' /mnt/etc/fstab || exit 1
+sed -i -e 's/rw,relatime,data=ordered/rw,data=ordered,noatime,discard,journal_checksum,max_batch_time=125000,min_batch_time=15000,stripe=128/' /mnt/etc/fstab || exit 1
+sed -i -e 's/defaults/defaults,discard/' /mnt/etc/fstab || exit 1
 
-echo 'KERNELVER=`uname -r` 
+echo 'KERNELVER=`uname -r`
 LOAD=`uptime | awk -F'\''load average:'\'' '\''{ print $2 }'\''`
 
 # get uptime from /proc/uptime
@@ -120,9 +138,14 @@ Machine Uptime: $UPTIME
 
 echo "writing install-script ..."
 
-echo "admins=(\"kevin\")" > /mnt/install.sh
+echo "admins=(\"ruben\" \"sascha\" \"tobias\" \"felix\")" > /mnt/install.sh
 echo "declare -A sshkeys" >> /mnt/install.sh
-echo "sshkeys[\"kevin\"]='ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQClO6Jdbj7HffLDmAoXr/KU7IYnkL/DvJBodE2UdhzROkc6YNSq7Y4xcfS3wHLH8OtPupbIDURwH/XZw2dflwcjxkHgyDPIQzzA988VJpZeT7DJ8AXx0VzZ0MfbIvksVja6eFgSbkvfU54zKloFFU0ml7UMh7WPwzY0kzhzjkiWnRLiTbERggIeeuQCF5HZvqpIr15ss1R0DLWMsLDL32FmM7tqYQRR5DkbD1T8ALIH3VaTcJhkaiqgW6V27Ps6gK/lEQU9JKFNxfhqF+OsK+pngnC0uppw/r265rymfsHa1SfWQxhYRuxZxafldCnZYgMs9KzGK76pziDHv3rGErCL kevinolbrich@Kevins-MacBook-Pro.local'" >> /mnt/install.sh
+echo "sshkeys[\"ruben\"]='ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDA4VjJnNTVDxtLgQqCzOiPWsy0yBNiv32GzzYPPatKYozL8PW5hDhEWg7h8vMs5Ty77U/qijjNr4VRyKKmvDFv907f6Wg/Fnm0a7+DmzZ6M4jdEJgqM3LJc3V81aXB6vXDCpCHB3orIKVB9xz2zaBdcA1A8eNYmy7paiZZPnjnSTGDt+UNMWfKumD9TAj4zyvH3yc1MdeB2WOvWCdxQXnyVEfS/AvAIZtzZA5D2osCPKouTGpjKZXoRYqJoT7X+GltbkopFZ7As9jEMfxG3Rum8oIOrqhNwy4ipahd50RYLhBXEUFvFQpDNadlbeslgTq/P5feX1z41PUR5OgNP8cd ruben@freifunk-nrw.de
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDIVP7CBN1orjIvx7OOvAaQ6h461ziDZjjgJSseR1GfPvpFizP80+N+6bhrOs8+sz/BxaO1kr9fpArs+g/NmMQobiiXKKmOcR+Wm1y2/LBOrtotmZZJGVQnSoQwwY9K7xhJMGKL4TlktSusvmja5kg2WAf7vW389oYqTfwVq4TgerpPSihn9vVRfVi0827MNfh5agwRIZ/OgWXd6ka/LDByQ0FtV4npFWAwx4/uWphg2t/g6vR7ZoIt5rBSR/E0VqRGMwSbwlbDbYgJTPJ3/lVCrDtVka2r1fuL5f+VyuyYhobtBwkjD5GusIB82XlvIs4KzFTOGVhPpvrmoFKaN1aJ ruben@freifunk-nrw.de_2
+ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBAFGe5/7cfDkbssq+byjSC1NEfFRIT9h7q26hKESXl2OSQuNj/vRLXlyF1iz8zwFamg0YSVjWb6KwvydimpfXNp8KQE3DKefEzn85eZMO3igMUl9tlnUQFU8skNFyG0o7aSSvw5P4AF5lFEJWqXT8VIkivU5ejI1Ua62CihwMccZ5LbFsg== ruben@i3-2014-09-22'
+sshkeys[\"sascha\"]='ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDDaN3JkkX8JnNjU8KfzW5VmnHJ53NWsMfTv1RD17HKVTzpGt3kc4tEAbt3yca+zBLQ2QuymAauPnSNxbE+eB+E5xKJgXzYSbujBewNBBKaYamYr0WMhOS4iOSIgNv5RZRa59xKpBenkGrmQUfNN1b9kITlZHSu5pYRS5CCXLoCflrroKPttcW3Bt3mHYkOnw85lndRMY/NJ/1jmTJMsX0mmjYbvDF9YLkvYaQhzQI6eU9nb4z4YB7Vs3ksg3cdE3uHThE5NTXqYe73uL0wUUyYQl3+Ta3brPCqhOCF8WTtHEgk5RMaiQtul8xUhOoy+KPCpZJoUbD8FBIOWiM6LLuN sascha@freifunk-nrw.de'
+sshkeys[\"tobias\"]='ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDW5fdNl1nCgAlr2ybbYkliqH+B/UvaJPXddlYlxNVcEEIMYO4myy26hg1k9pnOKXVxBUyOQo627RbHKB129HK5nksFoFrqzXmh8LKgOR4/yOff8jLYOba4GYynwplsgosR5Jrf7AIJSKfU47dYOQBoTtYTjcVLuaqQzVUkgR6lJBPY9si4o4kmwrjcluwiEsjoVer8qnUhSDtRPQmPMTHGenR56/j4tUEoLHUwkkgcjc/EMh05KDvCD1aOvPm89zptwKg8Hwn4xHKrTzTQSpmQ+KB7tMLi2WZ9ubZgJDajbdqo7a/crGBM2+CiZVbiQAwuEBSvZbr/kiUQ69jjsbar tobias@freifunk-nrw.de'
+sshkeys[\"felix\"]='ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAtAmxj3njoTfrqVdy4BcJkUFZXVmqg4YRaN8VK4ysXr1FC6zQcUmhAuw7vTh9y8pJW9AhiE/yoeX3jmJFuBaBludWudNxWq91w59R/IPF1umdPERiQzUzxV30ST4MmB8kXsjniXGWqbBovOK2GwCbilgQiKsjGuWNxhcz6Y3Nr3vG6tLgbTK5pEz2sovf+KL7h+8HRmcz4OgvI8CRhHk84hnv8MChr+zjcptwQ3R35gwzUWYc60dJlOX1F/2NeDUivVI+WPNTGTzDZZYNxgTWC86g4y8W0o74FGTO4zf/SheArhV5OMkQl31PZPzBy5YIJ7CZy11ifORAqso6mjRw+w== felix@freifunk-nrw.de'" >> /mnt/install.sh
 echo "echo '$hostname' > /etc/hostname" >> /mnt/install.sh
 echo "ln -s /usr/share/zoneinfo/Europe/Berlin /etc/localtime" >> /mnt/install.sh
 echo "sed -i -e 's/#\(de_DE\).UTF-8 UTF-8/\1.UTF-8 UTF-8/' /etc/locale.gen" >> /mnt/install.sh
@@ -131,11 +154,12 @@ echo "sed -i -e 's/#\(de_DE\)@euro ISO-8859-15/\1@euro ISO-8859-15/' /etc/locale
 echo "locale-gen" >> /mnt/install.sh
 echo "echo '$locale_conf' > /etc/locale.conf" >> /mnt/install.sh
 echo "echo 'KEYMAP=\"de-latin1\"' > /etc/vconsole.conf" >> /mnt/install.sh
-echo "echo '$archfr_repo' >> /etc/pacman.conf" >> /mnt/install.sh
+echo "echo '$extrarepos' >> /etc/pacman.conf" >> /mnt/install.sh
+echo "dirmngr < /dev/null" >> /mnt/install.sh
+echo "pacman-key -r 5E1ABF240EE7A126 && pacman-key --lsign-key 5E1ABF240EE7A126" >> /mnt/install.sh
 echo "pacman -Syy" >> /mnt/install.sh
 echo "pacman -S yaourt --noconfirm" >> /mnt/install.sh
 echo "sed -i -e 's/ -mtune=generic / -mtune=native /g' /etc/makepkg.conf" >> /mnt/install.sh
-echo "sed -i -e 's/^#MAKEFLAGS=\"-j2\"/MAKEFLAGS=\"-j4\"/' /etc/makepkg.conf" >> /mnt/install.sh
 echo "LISTOFADMINS=''"  >> /mnt/install.sh
 echo 'for admin in "${admins[@]}"; do' >> /mnt/install.sh
 echo ""  >> /mnt/install.sh
@@ -170,7 +194,7 @@ echo "crontab /crontab"  >> /mnt/install.sh
 echo "chmod +x /usr/local/bin/issue_update.sh" >> /mnt/install.sh
 echo "echo noarp >> /etc/dhcpcd.conf" >> /mnt/install.sh
 echo "mkinitcpio -p linux" >> /mnt/install.sh
-echo "grub-install $maindevice" >> /mnt/install.sh
+echo "grub-install $maindevice --target=i386-pc" >> /mnt/install.sh
 echo "sed -i -e 's/GRUB_TIMEOUT=5/GRUB_TIMEOUT=2/' /etc/default/grub" >> /mnt/install.sh
 echo "grub-mkconfig -o /boot/grub/grub.cfg" >> /mnt/install.sh
 
@@ -178,19 +202,15 @@ echo "0    *   * * * systemd-tmpfiles --clean
 */15 *   * * * pacman -Syuw --noconfirm
 0    */2 * * * pacman-optimize
 */1  *   * * * /usr/local/bin/issue_update.sh" > /mnt/crontab
- 
+
 
 
 echo "doing chroot, to configure new system..."
 
 arch-chroot /mnt /bin/sh <<EOC
 bash /install.sh
-read -p "Install passwords manually, then press [Enter] to finish installation..."
 rm /install.sh
 rm /crontab
 EOC
-umount /mnt/boot
 umount /mnt
 swapoff -a
-sync
-systemctl reboot
