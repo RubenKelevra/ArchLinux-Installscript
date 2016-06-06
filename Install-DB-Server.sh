@@ -81,9 +81,9 @@ partprobe || true
 
 echo "creating partion..."
 parted -s -- $maindevice mklabel msdos
-parted -a optimal -s -- $maindevice mkpart primary ext4 4096S 500MB
-parted -a optimal -s -- $maindevice mkpart primary linux-swap 500M 2500MB
-parted -a optimal -s -- $maindevice mkpart primary ext4 2500MB 99%FREE
+parted -a optimal -s -- $maindevice mkpart primary ext4 4096S 120MB
+parted -a optimal -s -- $maindevice mkpart primary linux-swap 120M 1500MB
+parted -a optimal -s -- $maindevice mkpart primary ext4 1500MB 99%FREE
 
 bootpartition=$(echo "$maindevice")1
 swappartition=$(echo "$maindevice")2
