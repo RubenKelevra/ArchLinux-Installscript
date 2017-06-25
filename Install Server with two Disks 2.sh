@@ -139,7 +139,7 @@ ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBAFGe5/7
 sshkeys[\"ernst\"]='ssh-ed25519
 AAAAC3NzaC1lZDI1NTE5AAAAIOmbNRmp5dCLlBbrV7dLPzWEqnJZqQFv/MVWME25bw9x'" >> /mnt/install.sh
 echo "echo '$hostname' > /etc/hostname" >> /mnt/install.sh
-echo "ln -s /usr/share/zoneinfo/Europe/Berlin /etc/localtime" >> /mnt/install.sh
+echo "ln -sf /usr/share/zoneinfo/Europe/Berlin /etc/localtime" >> /mnt/install.sh
 echo "sed -i -e 's/#\(de_DE\).UTF-8 UTF-8/\1.UTF-8 UTF-8/' /etc/locale.gen" >> /mnt/install.sh
 echo "sed -i -e 's/#\(de_DE\) ISO-8859-1/\1 ISO-8859-1/' /etc/locale.gen" >> /mnt/install.sh
 echo "sed -i -e 's/#\(de_DE\)@euro ISO-8859-15/\1@euro ISO-8859-15/' /etc/locale.gen" >> /mnt/install.sh
