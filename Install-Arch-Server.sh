@@ -144,6 +144,7 @@ echo "sshkeys[\"ruben\"]='ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDA4VjJnNTVDxtLgQ
 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDIVP7CBN1orjIvx7OOvAaQ6h461ziDZjjgJSseR1GfPvpFizP80+N+6bhrOs8+sz/BxaO1kr9fpArs+g/NmMQobiiXKKmOcR+Wm1y2/LBOrtotmZZJGVQnSoQwwY9K7xhJMGKL4TlktSusvmja5kg2WAf7vW389oYqTfwVq4TgerpPSihn9vVRfVi0827MNfh5agwRIZ/OgWXd6ka/LDByQ0FtV4npFWAwx4/uWphg2t/g6vR7ZoIt5rBSR/E0VqRGMwSbwlbDbYgJTPJ3/lVCrDtVka2r1fuL5f+VyuyYhobtBwkjD5GusIB82XlvIs4KzFTOGVhPpvrmoFKaN1aJ ruben@freifunk-nrw.de_2
 ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBAFGe5/7cfDkbssq+byjSC1NEfFRIT9h7q26hKESXl2OSQuNj/vRLXlyF1iz8zwFamg0YSVjWb6KwvydimpfXNp8KQE3DKefEzn85eZMO3igMUl9tlnUQFU8skNFyG0o7aSSvw5P4AF5lFEJWqXT8VIkivU5ejI1Ua62CihwMccZ5LbFsg== ruben@i3-2014-09-22'" >> /mnt/install.sh
 echo "echo '$hostname' > /etc/hostname" >> /mnt/install.sh
+echo "rm /etc/localtime || true >> /mnt/install.sh"
 echo "ln -s /usr/share/zoneinfo/Europe/Berlin /etc/localtime" >> /mnt/install.sh
 echo "sed -i -e 's/#\(de_DE\).UTF-8 UTF-8/\1.UTF-8 UTF-8/' /etc/locale.gen" >> /mnt/install.sh
 echo "sed -i -e 's/#\(de_DE\) ISO-8859-1/\1 ISO-8859-1/' /etc/locale.gen" >> /mnt/install.sh
