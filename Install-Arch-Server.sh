@@ -2,24 +2,6 @@
 hostname="$1"
 
 extrarepos='
-[archlinuxfr]
-SigLevel = Optional TrustAll
-Server = http://repo.archlinux.fr/$arch
-
-[repo-ck]
-Server = http://repo-ck.com/$arch
-Server = http://repo-ck.com/$arch
-Server = http://repo-ck.com/$arch
-Server = http://repo-ck.com/$arch
-Server = http://repo-ck.com/$arch
-Server = http://repo-ck.com/$arch
-Server = http://repo-ck.com/$arch
-Server = http://repo-ck.com/$arch
-Server = http://repo-ck.com/$arch
-Server = http://repo-ck.com/$arch
-Server = http://repo-ck.com/$arch
-Server = http://repo-ck.com/$arch
-
 [archzfs]
 Server = http://archzfs.com/$repo/x86_64'
 locale_conf='LANG=de_DE.UTF-8
