@@ -154,7 +154,7 @@ echo "echo '$locale_conf' > /etc/locale.conf" >> /mnt/install.sh
 echo "echo 'KEYMAP=\"de-latin1\"' > /etc/vconsole.conf" >> /mnt/install.sh
 echo "echo '$extrarepos' >> /etc/pacman.conf" >> /mnt/install.sh
 echo "dirmngr < /dev/null" >> /mnt/install.sh
-echo "pacman-key -r 5E1ABF240EE7A126 && pacman-key --lsign-key 5E1ABF240EE7A126" >> /mnt/install.sh
+echo "pacman-key -r F75D9D76 && pacman-key --lsign-key F75D9D76" >> /mnt/install.sh
 echo "pacman -Syy" >> /mnt/install.sh
 echo "pacman -S yaourt --noconfirm" >> /mnt/install.sh
 echo "sed -i -e 's/ -mtune=generic / -mtune=native /g' /etc/makepkg.conf" >> /mnt/install.sh
