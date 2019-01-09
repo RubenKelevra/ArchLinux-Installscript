@@ -138,7 +138,6 @@ echo "echo '$extrarepos' >> /etc/pacman.conf" >> /mnt/install.sh
 echo "dirmngr < /dev/null" >> /mnt/install.sh
 echo "pacman-key -r F75D9D76 && pacman-key --lsign-key F75D9D76" >> /mnt/install.sh
 echo "pacman -Syy" >> /mnt/install.sh
-echo "sed -i -e 's/ -mtune=generic / -mtune=native /g' /etc/makepkg.conf" >> /mnt/install.sh
 echo "LISTOFADMINS=''"  >> /mnt/install.sh
 echo 'for admin in "${admins[@]}"; do' >> /mnt/install.sh
 echo ""  >> /mnt/install.sh
