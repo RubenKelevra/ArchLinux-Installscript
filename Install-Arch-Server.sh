@@ -138,7 +138,6 @@ echo "echo '$extrarepos' >> /etc/pacman.conf" >> /mnt/install.sh
 echo "dirmngr < /dev/null" >> /mnt/install.sh
 echo "pacman-key -r F75D9D76 && pacman-key --lsign-key F75D9D76" >> /mnt/install.sh
 echo "pacman -Syy" >> /mnt/install.sh
-echo "pacman -S yaourt --noconfirm" >> /mnt/install.sh
 echo "sed -i -e 's/ -mtune=generic / -mtune=native /g' /etc/makepkg.conf" >> /mnt/install.sh
 echo "LISTOFADMINS=''"  >> /mnt/install.sh
 echo 'for admin in "${admins[@]}"; do' >> /mnt/install.sh
@@ -153,8 +152,16 @@ echo '    echo "${sshkeys["$admin"]}" > /home/$admin/.ssh/authorized_keys'  >> /
 echo '    LISTOFADMINS+=" $admin"'  >> /mnt/install.sh
 echo 'done' >> /mnt/install.sh
 echo "sed -i -e 's/# %wheel ALL=(ALL) NOPASSWD: ALL/%wheel ALL=(ALL) NOPASSWD: ALL/' /etc/sudoers" >> /mnt/install.sh
-echo 'echo "running yaourt with $admin-user"' >> /mnt/install.sh
-echo 'su $admin -c "yaourt -S rk-server-basic --noconfirm"' >> /mnt/install.sh
+echo 'echo "installing pikaur as $admin-user"' >> /mnt/install.sh
+echo "pacman -S pyalpm git --noconfirm" >> /mnt/install.sh
+echo 'cd /tmp' >> /mnt/install.sh
+echo 'su $admin -c "git clone https://aur.archlinux.org/pikaur.git"' >> /mnt/install.sh
+echo 'cd pikaur/' >> /mnt/install.sh
+echo 'su $admin -c "makepkg"' >> /mnt/install.sh
+echo 'pacman -U pikaur-*-any.pkg.tar.xz' >> /mnt/install.sh
+echo 'cd /' >> /mnt/install.sh
+echo 'rm -fdR /tmp/pikaur/' >> /mnt/install.sh
+echo 'su $admin -c "pikaur -S pkgtools preload openssl net-tools sudo iproute2 dos2unix python3 wget ntp acpid p7zip zip unrar openssh traceroute pkgfile hdparm ethtool sdparm haveged nmap iperf hping sysstat iotop tcpdump htop lsof dnssec-anchors screen curl unrar btrfs-progs git subversion f2fs-tools sshfs iftop mtr dnsutils socat bridge-utils cronie ferm ebtables arptables ipset thin-provisioning-tools unzip dhclient --noconfirm"' >> /mnt/install.sh
 echo "pkgfile --update" >> /mnt/install.sh
 echo 'echo -e "\nAllowUsers$LISTOFADMINS" >> /etc/ssh/sshd_config;unset LISTOFADMINS' >> /mnt/install.sh
 echo "sed -i -e 's/#UseDNS yes/UseDNS no/' /etc/ssh/sshd_config" >> /mnt/install.sh
@@ -169,10 +176,15 @@ echo "sed -i -e 's/#PermitEmptyPasswords no/PermitEmptyPasswords no/' /etc/ssh/s
 echo "passwd -l root" >> /mnt/install.sh
 echo "systemctl enable dhcpcd" >> /mnt/install.sh
 echo "systemctl enable sshd" >> /mnt/install.sh
+echo "systemctl enable cronie" >> /mnt/install.sh
+echo "systemctl enable acpid" >> /mnt/install.sh
+echo "systemctl enable ntpd" >> /mnt/install.sh
+echo "systemctl enable haveged" >> /mnt/install.sh
 echo "systemctl mask tmp.mount" >> /mnt/install.sh
 echo "crontab /crontab"  >> /mnt/install.sh
 echo "chmod +x /usr/local/bin/issue_update.sh" >> /mnt/install.sh
 echo "echo noarp >> /etc/dhcpcd.conf" >> /mnt/install.sh
+echo "sed -i -e 's/#COMPRESSION="lz4"/COMPRESSION=\"lz4\"/' /etc/mkinitcpio.conf" >> /mnt/install.sh
 echo "mkinitcpio -p linux" >> /mnt/install.sh
 echo "grub-install $maindevice --target=i386-pc" >> /mnt/install.sh
 echo "sed -i -e 's/GRUB_TIMEOUT=5/GRUB_TIMEOUT=2/' /etc/default/grub" >> /mnt/install.sh
