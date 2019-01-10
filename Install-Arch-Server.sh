@@ -160,7 +160,7 @@ echo 'su $admin -c "makepkg"' >> /mnt/install.sh
 echo 'pacman -U pikaur-*-any.pkg.tar.xz --noconfirm' >> /mnt/install.sh
 echo 'cd /' >> /mnt/install.sh
 echo 'rm -fdR /tmp/pikaur/' >> /mnt/install.sh
-echo 'su $admin -c "pikaur -S pkgtools preload openssh openssl net-tools sudo iproute2 dos2unix python3 wget ntp acpid p7zip zip unrar openssh traceroute pkgfile hdparm ethtool sdparm haveged nmap iperf hping sysstat iotop tcpdump htop lsof dnssec-anchors screen curl unrar btrfs-progs git subversion f2fs-tools sshfs iftop mtr dnsutils socat bridge-utils cronie ferm ebtables arptables ipset thin-provisioning-tools unzip dhclient --noconfirm"' >> /mnt/install.sh
+echo 'su $admin -c "pikaur -S pkgtools preload openssh openssl net-tools sudo iproute2 dos2unix python3 wget ntp acpid p7zip zip unrar openssh traceroute pkgfile hdparm ethtool sdparm haveged nmap iperf hping sysstat iotop tcpdump htop lsof dnssec-anchors screen curl unrar btrfs-progs git subversion f2fs-tools sshfs iftop mtr dnsutils socat bridge-utils cronie ferm ebtables arptables ipset thin-provisioning-tools unzip dhclient --noconfirm --needed"' >> /mnt/install.sh
 echo "pkgfile --update" >> /mnt/install.sh
 echo 'echo -e "\nAllowUsers$LISTOFADMINS" >> /etc/ssh/sshd_config;unset LISTOFADMINS' >> /mnt/install.sh
 echo "sed -i -e 's/#UseDNS yes/UseDNS no/' /etc/ssh/sshd_config" >> /mnt/install.sh
