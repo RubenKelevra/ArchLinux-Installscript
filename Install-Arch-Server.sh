@@ -157,7 +157,7 @@ echo 'cd /tmp' >> /mnt/install.sh
 echo 'su $admin -c "git clone https://aur.archlinux.org/pikaur.git"' >> /mnt/install.sh
 echo 'cd pikaur/' >> /mnt/install.sh
 echo 'su $admin -c "makepkg"' >> /mnt/install.sh
-echo 'pacman -U pikaur-*-any.pkg.tar.xz' >> /mnt/install.sh
+echo 'pacman -U pikaur-*-any.pkg.tar.xz --noconfirm' >> /mnt/install.sh
 echo 'cd /' >> /mnt/install.sh
 echo 'rm -fdR /tmp/pikaur/' >> /mnt/install.sh
 echo 'su $admin -c "pikaur -S pkgtools preload openssh openssl net-tools sudo iproute2 dos2unix python3 wget ntp acpid p7zip zip unrar openssh traceroute pkgfile hdparm ethtool sdparm haveged nmap iperf hping sysstat iotop tcpdump htop lsof dnssec-anchors screen curl unrar btrfs-progs git subversion f2fs-tools sshfs iftop mtr dnsutils socat bridge-utils cronie ferm ebtables arptables ipset thin-provisioning-tools unzip dhclient --noconfirm"' >> /mnt/install.sh
